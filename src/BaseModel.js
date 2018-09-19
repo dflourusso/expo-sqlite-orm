@@ -1,5 +1,4 @@
 import DatabaseLayer from './DatabaseLayer'
-export { types } from './DataTypes'
 
 export default class BaseModel {
   constructor(obj = {}) {
