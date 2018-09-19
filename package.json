@@ -3,8 +3,15 @@
   "version": "1.0.1",
   "description": "Simple orm for expo",
   "main": "src/index.js",
-  "author": "Daniel Fernando Lourusso",
+  "author": "Daniel Fernando Lourusso <dflourusso@gmail.com>",
   "license": "MIT",
+  "repository": "https://github.com/dflourusso/expo-sqlite-orm",
+  "keywords": [
+    "expo",
+    "sqlite",
+    "react-native",
+    "orm"
+  ],
   "scripts": {
     "test": "jest"
   },
