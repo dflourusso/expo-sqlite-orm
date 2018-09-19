@@ -2,6 +2,10 @@
 
 > It is a simple ORM utility to use with expo sqlite
 
+## Install
+
+`yarn add expo-sqlite-orm`
+
 ## Creating a model
 
 You need to provide 3 things:
