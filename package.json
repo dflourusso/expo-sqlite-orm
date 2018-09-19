@@ -8,6 +8,9 @@
   "scripts": {
     "test": "jest"
   },
+  "files": [
+    "src/"
+  ],
   "devDependencies": {
     "@types/jest": "^23.3.2",
     "babel-eslint": "^9.0.0",
