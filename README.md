@@ -21,7 +21,7 @@ You need to provide 3 things:
 
 ```javascript
 import { SQLite } from 'expo'
-import BaseModel, { types } from 'expo-sqlite-orm'
+import { BaseModel, types } from 'expo-sqlite-orm'
 
 export default class Animal extends BaseModel {
   constructor(obj) {

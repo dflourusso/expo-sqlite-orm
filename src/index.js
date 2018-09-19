@@ -1,3 +1,3 @@
 import BaseModel from './BaseModel'
-export { types } from './DataTypes'
-export default BaseModel
+import { types } from './DataTypes'
+export default { BaseModel, types }
