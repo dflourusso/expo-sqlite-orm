@@ -5,10 +5,16 @@
   "main": "index.js",
   "author": "Daniel Fernando Lourusso",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
     "@types/jest": "^23.3.2",
     "babel-eslint": "^9.0.0",
+    "babel-jest": "^23.6.0",
+    "babel-preset-env": "^1.7.0",
     "eslint": "^5.6.0",
-    "eslint-plugin-jest": "^21.22.0"
+    "eslint-plugin-jest": "^21.22.0",
+    "jest": "^23.6.0"
   }
 }
