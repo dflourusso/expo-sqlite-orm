@@ -39,9 +39,10 @@ export default class Animal extends BaseModel {
   static get columnMapping() {
     return {
       id: { type: types.INTEGER, primary_key: true }, // For while only supports id as primary key
-      name: { type: types.TEXT },
+      name: { type: types.TEXT, not_null: true },
       color: { type: types.TEXT },
-      age: { type: types.NUMERIC }
+      age: { type: types.NUMERIC },
+      another_uid: { type: types.INTEGER, unique: true }
     }
   }
 }
