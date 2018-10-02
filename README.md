@@ -173,3 +173,12 @@ Animal.query(options)
 - DATETIME
 - BOOLEAN
 - JSON
+
+## Author
+
+- [Daniel Fernando Lourusso](http://dflourusso.com.br)
+
+## License
+
+This project is licensed under
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)
