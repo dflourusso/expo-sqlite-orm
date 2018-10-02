@@ -8,7 +8,12 @@ export function _createTableColumns(columnMapping) {
     .map(i => {
       const type = i[1].type
       const parts = [i[0], customTypes[type] || type]
-      if (i[1].primary_key) parts.push('NOT NULL PRIMARY KEY AUTOINCREMENT')
+      if (i[1].primary_key) {
+        parts.push('NOT NULL PRIMARY KEY AUTOINCREMENT')
+      } else {
+        if (i[1].unique) parts.push('UNIQUE')
+        if (i[1].not_null) parts.push('NOT NULL')
+      }
       return parts.join(' ')
     })
     .join(', ')
