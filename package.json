@@ -1,6 +1,6 @@
 {
   "name": "expo-sqlite-orm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Simple orm for expo",
   "main": "src/index.js",
   "author": "Daniel Fernando Lourusso <dflourusso@gmail.com>",
