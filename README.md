@@ -155,13 +155,13 @@ Animal.query(options)
 
 **Where operations**
 
-- eq: '=',
-- neq: '<>',
-- lt: '<',
-- lteq: '<=',
-- gt: '>',
-- gteq: '>=',
-- cont: 'LIKE'
+- eq: `=`,
+- neq: `<>`,
+- lt: `<`,
+- lteq: `<=`,
+- gt: `>`,
+- gteq: `>=`,
+- cont: `LIKE`
 
 ## Data types
 
