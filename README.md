@@ -18,6 +18,7 @@ You need to provide 3 things:
 - `database`: Instance of expo SQLite or promise with that instance
 - `tableName`: The name of the table
 - `columnMapping`: The columns for the model and their types
+  - Supported options: `type`, `primary_key`, `not_null`, `unique`, `default`
 
 ```javascript
 import { SQLite } from 'expo'
@@ -42,7 +43,8 @@ export default class Animal extends BaseModel {
       name: { type: types.TEXT, not_null: true },
       color: { type: types.TEXT },
       age: { type: types.NUMERIC },
-      another_uid: { type: types.INTEGER, unique: true }
+      another_uid: { type: types.INTEGER, unique: true },
+      timestamp: { type: types.INTEGER, default: () => Date.now() }
     }
   }
 }

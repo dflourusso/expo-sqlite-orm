@@ -1,13 +1,23 @@
 import DatabaseLayer from './DatabaseLayer'
 
+const isFunction = p =>
+  Object.prototype.toString.call(p) === '[object Function]'
+
 export default class BaseModel {
   constructor(obj = {}) {
     this.setProperties(obj)
   }
 
   setProperties(props) {
-    Object.keys(this.constructor.columnMapping).forEach(k => {
-      this[k] = props[k] || null
+    const cm = this.constructor.columnMapping
+    Object.keys(cm).forEach(k => {
+      if (props[k]) {
+        this[k] = props[k]
+      } else if (isFunction(cm[k].default)) {
+        this[k] = cm[k].default()
+      } else {
+        this[k] = null
+      }
     })
     return this
   }
