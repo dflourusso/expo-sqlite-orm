@@ -12,7 +12,8 @@ class ModelExample {
       id: { type: types.INTEGER },
       teste1: { type: types.TEXT },
       teste2: { type: types.FLOAT },
-      teste3: { type: types.JSON }
+      teste3: { type: types.JSON },
+      teste4: { type: types.TEXT }
     }
   }
 }
@@ -32,7 +33,11 @@ describe('toDatabaseValue', () => {
       resource.constructor.columnMapping,
       resource
     )
-    const expected = { ...data2, teste3: JSON.stringify(data2.teste3) }
+    const expected = {
+      ...data2,
+      teste3: JSON.stringify(data2.teste3),
+      teste4: null
+    }
     expect(parsedValue).toEqual(expected)
   })
 })
@@ -48,7 +53,8 @@ describe('toModelValue', () => {
   it('Should returns converted object to instantiate the model', () => {
     const databaseValue = {
       ...data2,
-      teste3: JSON.stringify(data2.teste3)
+      teste3: JSON.stringify(data2.teste3),
+      teste5: 'Eita'
     }
     const parsedValue = DataTypes.toModelValue(
       ModelExample.columnMapping,
