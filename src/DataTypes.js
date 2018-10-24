@@ -10,8 +10,8 @@ export const types = {
 }
 
 function toDatabaseValue(columnMapping, resource) {
-  return Object.entries(columnMapping).reduce((o, p) => {
-    o[p[0]] = propertyToDatabaseValue(p[1].type, resource[p[0]])
+  return Object.entries(resource).reduce((o, p) => {
+    o[p[0]] = propertyToDatabaseValue(columnMapping[p[0]].type, p[1])
     return o
   }, {})
 }
