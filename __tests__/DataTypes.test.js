@@ -17,6 +17,7 @@ class ModelExample {
     }
   }
 }
+
 const data = { nome: 'Daniel' }
 const data2 = {
   id: 1,
@@ -50,7 +51,7 @@ describe('propertyToDatabaseValue', () => {
 })
 
 describe('toModelValue', () => {
-  it('Should returns converted object to instantiate the model', () => {
+  it('Should returns converted object to javascript', () => {
     const databaseValue = {
       ...data2,
       teste3: JSON.stringify(data2.teste3),
@@ -61,6 +62,18 @@ describe('toModelValue', () => {
       databaseValue
     )
     expect(parsedValue).toEqual(data2)
+  })
+
+  it('Should returns converted object, but only the props passed as param', () => {
+    const databaseValue = {
+      id: 1,
+      teste1: 'Asdf'
+    }
+    const parsedValue = DataTypes.toModelValue(
+      ModelExample.columnMapping,
+      databaseValue
+    )
+    expect(parsedValue).toEqual({ 'id': 1, teste1: 'Asdf' })
   })
 })
 
