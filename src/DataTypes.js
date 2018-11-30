@@ -27,7 +27,9 @@ function propertyToDatabaseValue(type, value) {
 
 function toModelValue(columnMapping, obj) {
   return Object.entries(columnMapping).reduce((o, p) => {
-    o[p[0]] = propertyToModelValue(p[1].type, obj[p[0]])
+    if (obj.hasOwnProperty(p[0])) {
+      o[p[0]] = propertyToModelValue(p[1].type, obj[p[0]])
+    }
     return o
   }, {})
 }
