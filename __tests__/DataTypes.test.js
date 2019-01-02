@@ -85,4 +85,20 @@ describe('propertyToModelValue', () => {
     )
     expect(parsedValue).toEqual(data)
   })
+
+  it('Convert undefined to JSON type', () => {
+    const parsedValue = DataTypes.propertyToModelValue(
+      types.JSON,
+      undefined
+    )
+    expect(parsedValue).toBe(null)
+  })
+
+  it('Convert empty string to JSON type', () => {
+    const parsedValue = DataTypes.propertyToModelValue(
+      types.JSON,
+      ''
+    )
+    expect(parsedValue).toBe(null)
+  })
 })

@@ -37,7 +37,7 @@ function toModelValue(columnMapping, obj) {
 function propertyToModelValue(type, value) {
   switch (type) {
     case types.JSON:
-      return JSON.parse(value)
+      return JSON.parse(value || null)
     default:
       return value
   }
