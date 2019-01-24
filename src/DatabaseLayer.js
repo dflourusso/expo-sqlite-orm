@@ -1,11 +1,9 @@
-import DataTypes from './DataTypes'
 import QueryBuilder from './query_builder'
 
 export default class DatabaseLayer {
-  constructor(database, tableName, columnMapping) {
+  constructor(database, tableName) {
     this.database = database
     this.tableName = tableName
-    this.columnMapping = columnMapping
   }
 
   async executeSql(sql, params = []) {
@@ -24,8 +22,8 @@ export default class DatabaseLayer {
     })
   }
 
-  createTable() {
-    const sql = QueryBuilder.createTable(this.tableName, this.columnMapping)
+  createTable(columnMapping) {
+    const sql = QueryBuilder.createTable(this.tableName, columnMapping)
     return this.executeSql(sql).then(() => true)
   }
 
@@ -34,21 +32,15 @@ export default class DatabaseLayer {
     return this.executeSql(sql).then(() => true)
   }
 
-  insert(_obj) {
-    const obj = this._sanitize(_obj)
+  insert(obj) {
     const sql = QueryBuilder.insert(this.tableName, obj)
-    const params = Object.values(
-      DataTypes.toDatabaseValue(this.columnMapping, obj)
-    )
-    return this.executeSql(sql, params).then(({ insertId }) =>
-      this.find(insertId)
-    )
+    const params = Object.values(obj)
+    return this.executeSql(sql, params).then(({ insertId }) => this.find(insertId))
   }
 
-  update(_obj) {
-    const obj = this._sanitize(_obj)
+  update(obj) {
     const sql = QueryBuilder.update(this.tableName, obj)
-    const { id, ...props } = DataTypes.toDatabaseValue(this.columnMapping, obj)
+    const { id, ...props } = obj
     const params = Object.values(props)
     return this.executeSql(sql, [...params, id])
   }
@@ -65,36 +57,19 @@ export default class DatabaseLayer {
 
   find(id) {
     const sql = QueryBuilder.find(this.tableName)
-    return this.executeSql(sql, [id])
-      .then(({ rows }) => rows[0])
-      .then(
-        res => (res ? DataTypes.toModelValue(this.columnMapping, res) : null)
-      )
+    return this.executeSql(sql, [id]).then(({ rows }) => rows[0])
   }
 
   findBy(where = {}) {
     const options = { where, limit: 1 }
     const sql = QueryBuilder.query(this.tableName, options)
     const params = Object.values(options.where)
-    return this.executeSql(sql, params)
-      .then(({ rows }) => rows[0])
-      .then(
-        res => (res ? DataTypes.toModelValue(this.columnMapping, res) : null)
-      )
+    return this.executeSql(sql, params).then(({ rows }) => rows[0])
   }
 
   query(options = {}) {
     const sql = QueryBuilder.query(this.tableName, options)
     const params = Object.values(options.where || {})
-    return this.executeSql(sql, params)
-      .then(({ rows }) => rows)
-      .then(res => res.map(p => DataTypes.toModelValue(this.columnMapping, p)))
-  }
-
-  _sanitize(obj) {
-    const allowedKeys = Object.keys(this.columnMapping)
-    return Object.keys(obj).reduce((ret, key) => {
-      return allowedKeys.includes(key) ? { ...ret, [key]: obj[key] } : ret
-    }, {})
+    return this.executeSql(sql, params).then(({ rows }) => rows)
   }
 }
