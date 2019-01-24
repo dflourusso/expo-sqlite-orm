@@ -7,4 +7,8 @@ export function insert(tableName, object) {
   return `INSERT INTO ${tableName} (${columns}) VALUES (${values});`
 }
 
-export default { insert }
+export function insertOrReplace(tableName, object) {
+  return insert(tableName, object).replace('INSERT INTO', 'INSERT OR REPLACE INTO')
+}
+
+export default { insert, insertOrReplace }

@@ -6,20 +6,30 @@ export default class DatabaseLayer {
     this.tableName = tableName
   }
 
-  async executeSql(sql, params = []) {
+  async executeBulkSql(sqls, params = []) {
     const database = await this.database()
-    return new Promise((resolve, reject) => {
+    return new Promise((txResolve, txReject) => {
       database.transaction(tx => {
-        tx.executeSql(
-          sql,
-          params,
-          (_, { rows, insertId }) => {
-            resolve({ rows: rows._array, insertId })
-          },
-          reject
-        )
+        Promise.all(sqls.map((sql, index) => {
+          return new Promise((sqlResolve, sqlReject) => {
+            tx.executeSql(
+              sql,
+              params[index],
+              (_, { rows, insertId }) => {
+                sqlResolve({ rows: rows._array, insertId })
+              },
+              sqlReject
+            )
+          })
+        })).then(txResolve).catch(txReject)
       })
     })
+  }
+
+  async executeSql(sql, params = []) {
+    return this.executeBulkSql([sql], [params])
+      .then(res => res[0])
+      .catch(errors => {throw errors[0]})
   }
 
   createTable(columnMapping) {
@@ -43,6 +53,16 @@ export default class DatabaseLayer {
     const { id, ...props } = obj
     const params = Object.values(props)
     return this.executeSql(sql, [...params, id])
+  }
+
+  bulkInsertOrReplace(objs) {
+    const list = objs.reduce((accumulator, obj) => {
+      const params = Object.values(obj)
+      accumulator.sqls.push(QueryBuilder.insertOrReplace(this.tableName, obj))
+      accumulator.params.push(params)
+      return accumulator
+    }, { sqls: [], params: [] })
+    return this.executeBulkSql(list.sqls, list.params)
   }
 
   destroy(id) {
