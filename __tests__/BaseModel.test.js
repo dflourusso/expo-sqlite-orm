@@ -1,7 +1,7 @@
-jest.mock('../src/DatabaseLayer')
+jest.mock('../src/Repository')
 import BaseModel from '../src/BaseModel'
 import { types } from '../src/DataTypes'
-import DatabaseLayer from '../src/DatabaseLayer'
+import Repository from '../src/Repository'
 
 describe('setProperties', () => {
   it('should not set with empty columnMapping', () => {
@@ -17,6 +17,7 @@ describe('setProperties', () => {
         return { id: {}, nome: {}, timestamp: { default: () => '123456' } }
       }
     }
+
     const tmp = new Tmp()
     const ret = tmp.setProperties({ id: 1, nome: 'Daniel' })
     expect(tmp.id).toBe(1)
@@ -31,6 +32,7 @@ describe('setProperties', () => {
         return { id: {}, nome: {} }
       }
     }
+
     const tmp = new Tmp({ id: 1, nome: 'Daniel' })
     expect(tmp.id).toBe(1)
     expect(tmp.nome).toBe('Daniel')
@@ -49,7 +51,7 @@ describe('getters', () => {
   it('columnMapping should returns an empty object', () => {
     expect(BaseModel.columnMapping).toEqual({})
   })
-  it('databaseLayer should returns an instance of DatabaseLayer', () => {
+  it('repository should returns an instance of Repository', () => {
     class Tmp extends BaseModel {
       static get database() {
         return {}
@@ -60,7 +62,7 @@ describe('getters', () => {
       }
     }
 
-    expect(Tmp.databaseLayer).toEqual(new DatabaseLayer())
+    expect(Tmp.repository).toEqual(new Repository())
   })
 })
 
@@ -68,6 +70,7 @@ describe('actions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
+
   class Tmp extends BaseModel {
     static get database() {
       return {}
@@ -76,6 +79,7 @@ describe('actions', () => {
     static get tableName() {
       return 'tests'
     }
+
     static get columnMapping() {
       return {
         id: { type: types.INTEGER },
@@ -86,20 +90,20 @@ describe('actions', () => {
 
   it('createTable', () => {
     Tmp.createTable()
-    expect(Tmp.databaseLayer.createTable).toHaveBeenCalledTimes(1)
+    expect(Tmp.repository.createTable).toHaveBeenCalledTimes(1)
   })
 
   it('dropTable', () => {
     Tmp.dropTable()
-    expect(Tmp.databaseLayer.dropTable).toHaveBeenCalledTimes(1)
+    expect(Tmp.repository.dropTable).toHaveBeenCalledTimes(1)
   })
 
   it('create', done => {
     const obj = { id: 1, nome: 'Daniel' }
     Tmp.create(obj)
       .then(res => {
-        expect(Tmp.databaseLayer.insert).toHaveBeenCalledTimes(1)
-        expect(Tmp.databaseLayer.insert).toBeCalledWith(obj)
+        expect(Tmp.repository.insert).toHaveBeenCalledTimes(1)
+        expect(Tmp.repository.insert).toBeCalledWith(obj)
         expect(res).toBeInstanceOf(Tmp)
         done()
       })
@@ -110,8 +114,8 @@ describe('actions', () => {
     const obj = { id: 1, nome: 'Daniel' }
     Tmp.update(obj)
       .then(res => {
-        expect(Tmp.databaseLayer.update).toHaveBeenCalledTimes(1)
-        expect(Tmp.databaseLayer.update).toBeCalledWith(obj)
+        expect(Tmp.repository.update).toHaveBeenCalledTimes(1)
+        expect(Tmp.repository.update).toBeCalledWith(obj)
         expect(res).toBeInstanceOf(Tmp)
         done()
       })
@@ -124,9 +128,9 @@ describe('actions', () => {
       tmp
         .save()
         .then(res => {
-          expect(Tmp.databaseLayer.insert).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.insert).toBeCalledWith(tmp)
-          expect(Tmp.databaseLayer.update).toHaveBeenCalledTimes(0)
+          expect(Tmp.repository.insert).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.insert).toBeCalledWith(tmp)
+          expect(Tmp.repository.update).toHaveBeenCalledTimes(0)
           expect(res).toBeInstanceOf(Tmp)
           done()
         })
@@ -138,9 +142,9 @@ describe('actions', () => {
       tmp
         .save()
         .then(res => {
-          expect(Tmp.databaseLayer.update).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.update).toBeCalledWith(tmp)
-          expect(Tmp.databaseLayer.insert).toHaveBeenCalledTimes(0)
+          expect(Tmp.repository.update).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.update).toBeCalledWith(tmp)
+          expect(Tmp.repository.insert).toHaveBeenCalledTimes(0)
           expect(res).toBeInstanceOf(Tmp)
           done()
         })
@@ -154,8 +158,8 @@ describe('actions', () => {
       tmp
         .destroy()
         .then(res => {
-          expect(Tmp.databaseLayer.destroy).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.destroy).toBeCalledWith(1)
+          expect(Tmp.repository.destroy).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.destroy).toBeCalledWith(1)
           expect(res).toBeTruthy()
           done()
         })
@@ -165,8 +169,8 @@ describe('actions', () => {
     it('static method', done => {
       Tmp.destroy(1)
         .then(res => {
-          expect(Tmp.databaseLayer.destroy).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.destroy).toBeCalledWith(1)
+          expect(Tmp.repository.destroy).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.destroy).toBeCalledWith(1)
           expect(res).toBeTruthy()
           done()
         })
@@ -176,8 +180,8 @@ describe('actions', () => {
     it('destroyAll', done => {
       Tmp.destroyAll()
         .then(res => {
-          expect(Tmp.databaseLayer.destroyAll).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.destroyAll).toBeCalledWith()
+          expect(Tmp.repository.destroyAll).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.destroyAll).toBeCalledWith()
           expect(res).toBeTruthy()
           done()
         })
@@ -189,8 +193,8 @@ describe('actions', () => {
     it('found', done => {
       Tmp.find(1)
         .then(res => {
-          expect(Tmp.databaseLayer.find).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.find).toBeCalledWith(1)
+          expect(Tmp.repository.find).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.find).toBeCalledWith(1)
           expect(res).toBeInstanceOf(Tmp)
           done()
         })
@@ -200,8 +204,8 @@ describe('actions', () => {
     it('not found', done => {
       Tmp.find(999)
         .then(res => {
-          expect(Tmp.databaseLayer.find).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.find).toBeCalledWith(999)
+          expect(Tmp.repository.find).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.find).toBeCalledWith(999)
           expect(res).toBeNull()
           done()
         })
@@ -214,8 +218,8 @@ describe('actions', () => {
       const where = { numero_eq: 12345, codigo_verificacao_eq: 'AXJFSD' }
       Tmp.findBy(where)
         .then(res => {
-          expect(Tmp.databaseLayer.findBy).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.findBy).toBeCalledWith(where)
+          expect(Tmp.repository.findBy).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.findBy).toBeCalledWith(where)
           expect(res).toBeInstanceOf(Tmp)
           done()
         })
@@ -224,12 +228,12 @@ describe('actions', () => {
 
     it('not found', done => {
       const fn = jest.fn(() => Promise.resolve(null))
-      Tmp.databaseLayer.findBy = fn
+      Tmp.repository.findBy = fn
       const where = { numero_eq: 999 }
       Tmp.findBy(where)
         .then(res => {
-          expect(Tmp.databaseLayer.findBy).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.findBy).toBeCalledWith(where)
+          expect(Tmp.repository.findBy).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.findBy).toBeCalledWith(where)
           expect(res).toBeNull()
           done()
         })
@@ -241,8 +245,8 @@ describe('actions', () => {
     it('empty options', done => {
       Tmp.query({})
         .then(res => {
-          expect(Tmp.databaseLayer.query).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.query).toBeCalledWith({})
+          expect(Tmp.repository.query).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.query).toBeCalledWith({})
           expect(res).toEqual([])
           done()
         })
@@ -253,8 +257,8 @@ describe('actions', () => {
       const options = { columns: '*', where: { nome_cont: '%Daniel%' } }
       Tmp.query(options)
         .then(res => {
-          expect(Tmp.databaseLayer.query).toHaveBeenCalledTimes(1)
-          expect(Tmp.databaseLayer.query).toBeCalledWith(options)
+          expect(Tmp.repository.query).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.query).toBeCalledWith(options)
           expect(res).toEqual([])
           done()
         })
