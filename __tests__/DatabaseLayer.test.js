@@ -36,12 +36,10 @@ const columnMapping = {
 
 describe('execute sql', () => {
   const databaseLayer = new DatabaseLayer(database, tableName, columnMapping)
-  it('call execute with the correct params', done => {
+  it('call execute with the correct params', () => {
     const sql = 'select * from tests where id = ?'
     const params = [1]
-    databaseLayer.executeSql(sql, params)
-
-    setTimeout(() => {
+    return databaseLayer.executeSql(sql, params).then(() => {
       expect(executeSql).toHaveBeenCalledTimes(1)
       expect(executeSql).toHaveBeenCalledWith(
         sql,
@@ -49,34 +47,21 @@ describe('execute sql', () => {
         expect.any(Function),
         expect.any(Function)
       )
-      done()
     })
   })
 
-  it('promise returns the expected values', done => {
-    const ret = databaseLayer.executeSql()
-
-    expect(ret).toBeInstanceOf(Promise)
-    ret
-      .then(res => {
-        expect(res.rows).toEqual([])
-        expect(res.insertId).toBeNull()
-        done()
-      })
-      .catch(done)
+  it('promise returns the expected values', () => {
+    return databaseLayer.executeSql().then(res => {
+      expect(res.rows).toEqual([])
+      expect(res.insertId).toBeNull()
+    })
   })
 
-  it('promise returns insertId if is an insert operation', done => {
-    const ret = databaseLayer.executeSql('INSERT INTO TEST (test) VALUES (1)')
-
-    expect(ret).toBeInstanceOf(Promise)
-    ret
-      .then(res => {
-        expect(res.rows).toEqual([])
-        expect(res.insertId).toBe(1)
-        done()
-      })
-      .catch(done)
+  it('promise returns insertId if is an insert operation', () => {
+    return databaseLayer.executeSql('INSERT INTO TEST (test) VALUES (1)').then(res => {
+      expect(res.rows).toEqual([])
+      expect(res.insertId).toBe(1)
+    })
   })
 })
 
@@ -88,7 +73,7 @@ describe('run statements', () => {
   beforeEach(jest.clearAllMocks)
 
   it('create table', () => {
-    const response = databaseLayer.createTable()
+    const response = databaseLayer.createTable(columnMapping)
     expect(Qb.createTable).toBeCalledWith(tableName, columnMapping)
     expect(fn).toBeCalledWith(qbMockReturns)
     expect(response).toBeInstanceOf(Promise)
@@ -101,53 +86,28 @@ describe('run statements', () => {
     expect(response).toBeInstanceOf(Promise)
   })
 
-  it('insert', done => {
-    const insertFn = jest.fn(() =>
-      Promise.resolve({
-        rows: [{ id: 1, teste3: '{"prop":123}' }],
-        insertId: 1
-      })
-    )
+  it('insert', () => {
+    const insertFn = jest.fn(async () => ({ rows: [{ id: 1, teste3: '{"prop":123}' }], insertId: 1 }))
     databaseLayer.executeSql = insertFn
-    const resource = new ModelExample({
-      teste1: 'teste',
-      teste2: 2,
-      teste3: { prop: 123 }
+    const resource = { teste1: 'teste', teste2: 2, teste3: JSON.stringify({ prop: 123 }) }
+    return databaseLayer.insert(resource).then(res => {
+      expect(Qb.insert).toBeCalledWith(tableName, resource)
+      expect(insertFn).toBeCalledWith(
+        qbMockReturns,
+        Object.values({ ...resource, teste3: '{"prop":123}' })
+      )
+      expect(res).toEqual({ id: 1, teste3: '{"prop":123}' })
     })
-    const response = databaseLayer.insert(resource)
-    expect(Qb.insert).toBeCalledWith(tableName, resource)
-    expect(response).toBeInstanceOf(Promise)
-    expect(insertFn).toBeCalledWith(
-      qbMockReturns,
-      Object.values({ ...resource, teste3: '{"prop":123}' })
-    )
-    response
-      .then(res => {
-        expect(res).toEqual({ id: 1, teste3: { prop: 123 } })
-        done()
-      })
-      .catch(done)
   })
 
-  it('update', done => {
+  it('update', () => {
     const updateFn = jest.fn(() => Promise.resolve())
     databaseLayer.executeSql = updateFn
-    const resource = new ModelExample({
-      id: 1,
-      teste1: 'teste',
-      teste2: 2,
-      teste3: { prop: 123 }
+    const resource = { id: 1, teste1: 'teste', teste2: 2, teste3: '{"prop":123}' }
+    return databaseLayer.update(resource).then(() => {
+      expect(Qb.update).toBeCalledWith(tableName, resource)
+      expect(updateFn).toBeCalledWith(qbMockReturns, ['teste', 2, '{"prop":123}', 1])
     })
-    const response = databaseLayer.update(resource)
-    expect(Qb.update).toBeCalledWith(tableName, resource)
-    expect(response).toBeInstanceOf(Promise)
-    expect(updateFn).toBeCalledWith(qbMockReturns, [
-      'teste',
-      2,
-      '{"prop":123}',
-      1
-    ])
-    done()
   })
 
   it('destroy', () => {
@@ -168,202 +128,79 @@ describe('run statements', () => {
     expect(fn).toBeCalledWith(qbMockReturns)
   })
 
-  it('find', done => {
-    const fn = jest.fn(() =>
-      Promise.resolve({
-        rows: [{ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }]
-      })
-    )
+  it('find', () => {
+    const fn = jest.fn(async () => ({ rows: [{ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }] }))
     databaseLayer.executeSql = fn
-    const response = databaseLayer.find(1)
-    expect(Qb.find).toBeCalledWith(tableName)
-    expect(fn).toBeCalledWith(qbMockReturns, [1])
-    expect(response).toBeInstanceOf(Promise)
-    response
-      .then(res => {
-        expect(res).toEqual({
-          id: 1,
-          teste1: 'Daniel',
-          teste2: 3.5,
-          teste3: { prop: 123 }
-        })
-        done()
-      })
-      .catch(done)
+    return databaseLayer.find(1).then(res => {
+      expect(Qb.find).toBeCalledWith(tableName)
+      expect(fn).toBeCalledWith(qbMockReturns, [1])
+      expect(res).toEqual({ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' })
+    })
   })
 
-  it('find not found', done => {
-    const fn = jest.fn(() =>
-      Promise.resolve({
-        rows: []
-      })
-    )
+  it('find not found', () => {
+    const fn = jest.fn(async () => ({ rows: [] }))
     databaseLayer.executeSql = fn
-    const response = databaseLayer.find(1)
-    expect(Qb.find).toBeCalledWith(tableName)
-    expect(fn).toBeCalledWith(qbMockReturns, [1])
-    expect(response).toBeInstanceOf(Promise)
-    response
-      .then(res => {
-        expect(res).toBeNull()
-        done()
-      })
-      .catch(done)
+    return databaseLayer.find(1).then(res => {
+      expect(Qb.find).toBeCalledWith(tableName)
+      expect(fn).toBeCalledWith(qbMockReturns, [1])
+      expect(res).toBeUndefined()
+    })
   })
 
   describe('findBy', () => {
-    it('with correct params returns first element found', done => {
-      const fn = jest.fn(() =>
-        Promise.resolve({
-          rows: [
-            { id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }
-          ]
-        })
-      )
+    it('with correct params returns first element found', () => {
+      const fn = jest.fn(async () => ({ rows: [{ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }] }))
       databaseLayer.executeSql = fn
       const where = { teste2_eq: 3.5 }
-      const response = databaseLayer.findBy(where)
-      expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
-      expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
-      expect(response).toBeInstanceOf(Promise)
-      response
-        .then(res => {
-          expect(res).toEqual({
-            id: 1,
-            teste1: 'Daniel',
-            teste2: 3.5,
-            teste3: { prop: 123 }
-          })
-          done()
-        })
-        .catch(done)
+      return databaseLayer.findBy(where).then(res => {
+        expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
+        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
+        expect(res).toEqual({ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' })
+      })
     })
 
-    it('without params returns the first row found', done => {
-      const fn = jest.fn(() =>
-        Promise.resolve({
-          rows: [
-            { id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }
-          ]
-        })
-      )
+    it('without params returns the first row found', () => {
+      const fn = jest.fn(async () => ({ rows: [{ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }] }))
       databaseLayer.executeSql = fn
-      const response = databaseLayer.findBy()
-      expect(Qb.query).toBeCalledWith(tableName, { where: {}, limit: 1 })
-      expect(fn).toBeCalledWith(qbMockReturns, [])
-      expect(response).toBeInstanceOf(Promise)
-      response
-        .then(res => {
-          expect(res).toEqual({
-            id: 1,
-            teste1: 'Daniel',
-            teste2: 3.5,
-            teste3: { prop: 123 }
-          })
-          done()
-        })
-        .catch(done)
+      return databaseLayer.findBy().then(res => {
+        expect(Qb.query).toBeCalledWith(tableName, { where: {}, limit: 1 })
+        expect(fn).toBeCalledWith(qbMockReturns, [])
+        expect(res).toEqual({ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' })
+      })
     })
 
-    it('not found should return null', done => {
-      const fn = jest.fn(() => Promise.resolve({ rows: [] }))
+    it('not found should return null', () => {
+      const fn = jest.fn(async () => ({ rows: [] }))
       databaseLayer.executeSql = fn
       const where = { teste2_eq: 3.5 }
-      const response = databaseLayer.findBy(where)
-      expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
-      expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
-      expect(response).toBeInstanceOf(Promise)
-      response
-        .then(res => {
-          expect(res).toBeNull()
-          done()
-        })
-        .catch(done)
+      return databaseLayer.findBy(where).then(res => {
+        expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
+        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
+        expect(res).toBeUndefined()
+      })
     })
   })
 
-  it('query', done => {
-    const fn = jest.fn(() =>
-      Promise.resolve({
-        rows: [{ id: 1, teste3: '{"prop":123}' }]
-      })
-    )
+  it('query', () => {
+    const fn = jest.fn(async () => ({ rows: [{ id: 1, teste3: '{"prop":123}' }] }))
     databaseLayer.executeSql = fn
     const options = { columns: 'id, teste3', where: { id_eq: 1 } }
     const params = Object.values(options.where)
-    const response = databaseLayer.query(options)
-    expect(Qb.query).toBeCalledWith(tableName, options)
-    expect(fn).toBeCalledWith(qbMockReturns, params)
-    expect(response).toBeInstanceOf(Promise)
-    response
-      .then(res => {
-        expect(res).toEqual([
-          {
-            id: 1,
-            teste3: { prop: 123 }
-          }
-        ])
-        done()
-      })
-      .catch(done)
+    return databaseLayer.query(options).then(res => {
+      expect(Qb.query).toBeCalledWith(tableName, options)
+      expect(fn).toBeCalledWith(qbMockReturns, params)
+      expect(res).toEqual([{ id: 1, teste3: '{"prop":123}' }])
+    })
   })
 
-  it('query with empty options', done => {
-    const fn = jest.fn(() =>
-      Promise.resolve({
-        rows: [{ id: 1, teste3: '{"prop":123}' }]
-      })
-    )
+  it('query with empty options', () => {
+    const fn = jest.fn(async () => ({ rows: [{ id: 1, teste3: '{"prop":123}' }] }))
     databaseLayer.executeSql = fn
-    const response = databaseLayer.query()
-    expect(Qb.query).toBeCalledWith(tableName, {})
-    expect(fn).toBeCalledWith(qbMockReturns, [])
-    expect(response).toBeInstanceOf(Promise)
-    response
-      .then(res => {
-        expect(res).toEqual([
-          {
-            id: 1,
-            teste3: { prop: 123 }
-          }
-        ])
-        done()
-      })
-      .catch(done)
-  })
-
-  it('sanitize', () => {
-    const obj = {
-      id: 1,
-      teste1: 'Daniel',
-      teste2: 3.5,
-      teste3: { prop: 123 },
-      abacaxi: 'amarelo'
-    }
-    const expected = {
-      id: 1,
-      teste1: 'Daniel',
-      teste2: 3.5,
-      teste3: { prop: 123 }
-    }
-    const response = databaseLayer._sanitize(obj)
-    expect(response).toEqual(expected)
+    return databaseLayer.query().then(res => {
+      expect(Qb.query).toBeCalledWith(tableName, {})
+      expect(fn).toBeCalledWith(qbMockReturns, [])
+      expect(res).toEqual([{ id: 1, teste3: '{"prop":123}' }])
+    })
   })
 })
-
-class ModelExample {
-  constructor(obj) {
-    Object.keys(this.constructor.columnMapping).forEach(k => {
-      this[k] = obj[k] || null
-    })
-  }
-
-  static get columnMapping() {
-    return {
-      id: { type: types.INTEGER },
-      teste1: { type: types.TEXT },
-      teste2: { type: types.FLOAT },
-      teste3: { type: types.JSON }
-    }
-  }
-}
