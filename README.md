@@ -176,6 +176,31 @@ Animal.query(options)
 - BOOLEAN
 - JSON
 
+## How to exec a sql manually?
+
+```javascript
+import { SQLite } from 'expo'
+import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
+
+const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'))
+databaseLayer.executeSql('SELECT * from table_name;').then(response => {
+  console.log(response)
+})
+```
+
+## Bulk insert or replace?
+
+```javascript
+import { SQLite } from 'expo'
+import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
+
+const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'), 'table_name')
+const itens = [{id: 1, color: 'green'}, {id: 2, color: 'red'}]
+databaseLayer.bulkInsertOrReplace(itens).then(response => {
+  console.log(response)
+})
+```
+
 ## Author
 
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
