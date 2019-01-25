@@ -4,13 +4,18 @@ jest.mock('../src/query_builder', () => {
     'find',
     'query',
     'update',
+    'insertOrReplace',
     'destroy',
     'destroyAll',
     'createTable',
     'dropTable'
   ]
   return methods.reduce((o, p) => {
-    o[p] = jest.fn(() => 'query')
+    if (p === 'insertOrReplace') {
+      o[p] = jest.fn((tableName, options) => `query ${tableName} (${Object.keys(options)})`)
+    } else {
+      o[p] = jest.fn(() => 'query')
+    }
     return o
   }, {})
 })
@@ -63,6 +68,13 @@ describe('execute sql', () => {
       expect(res.insertId).toBe(1)
     })
   })
+
+  it('promise rejects', () => {
+    jest.spyOn(databaseLayer, 'executeBulkSql').mockImplementationOnce(jest.fn(async () => {throw ['Ops']}))
+    return databaseLayer.executeSql('INSERT INTO TEST (test) VALUES (1)').catch(e => {
+      expect(e).toEqual('Ops')
+    })
+  })
 })
 
 describe('run statements', () => {
@@ -107,6 +119,25 @@ describe('run statements', () => {
     return databaseLayer.update(resource).then(() => {
       expect(Qb.update).toBeCalledWith(tableName, resource)
       expect(updateFn).toBeCalledWith(qbMockReturns, ['teste', 2, '{"prop":123}', 1])
+    })
+  })
+
+  it('bulkInsertOrReplace', () => {
+    jest.spyOn(databaseLayer, 'executeBulkSql').mockImplementationOnce(async (p1, p2) => ([p1, p2]))
+    const objs = [{ id: 1, name: 'Daniel' }, { id: 2, name: 'Fernando' }, { id: 10, name: 'Lourusso' }]
+    const expectedResponse = [
+      [
+        'query tests (id,name)',
+        'query tests (id,name)',
+        'query tests (id,name)'
+      ],
+      [[1, 'Daniel'], [2, 'Fernando'], [10, 'Lourusso']]
+    ]
+    return databaseLayer.bulkInsertOrReplace(objs).then(res => {
+      expect(Qb.insertOrReplace).toHaveBeenNthCalledWith(1, 'tests', { id: 1, name: 'Daniel' })
+      expect(Qb.insertOrReplace).toHaveBeenNthCalledWith(2, 'tests', { id: 2, name: 'Fernando' })
+      expect(Qb.insertOrReplace).toHaveBeenNthCalledWith(3, 'tests', { id: 10, name: 'Lourusso' })
+      expect(res).toEqual(expectedResponse)
     })
   })
 
