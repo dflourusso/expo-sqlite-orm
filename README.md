@@ -30,7 +30,7 @@ export default class Animal extends BaseModel {
   }
 
   static get database() {
-    return () => Promise.resolve(SQLite.openDatabase('database.db'))
+    return async () => SQLite.openDatabase('database.db')
   }
 
   static get tableName() {
