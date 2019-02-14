@@ -17,7 +17,7 @@ export default class Repository {
 
   insert(_obj) {
     const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(_obj))
-    return this.databaseLayer.insert(obj)
+    return this.databaseLayer.insert(obj).then(res => DataTypes.toModelValue(this.columnMapping, res))
   }
 
   update(_obj) {

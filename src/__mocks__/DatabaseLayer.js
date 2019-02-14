@@ -1,7 +1,7 @@
 export const executeSql = jest.fn()
 export const createTable = jest.fn()
 export const dropTable = jest.fn()
-export const insert = jest.fn(() => Promise.resolve({}))
+export const insert = jest.fn(async p => p)
 export const update = jest.fn(() => Promise.resolve({}))
 export const destroy = jest.fn(() => Promise.resolve(true))
 export const destroyAll = jest.fn(() => Promise.resolve(true))

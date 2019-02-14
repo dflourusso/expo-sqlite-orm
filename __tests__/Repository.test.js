@@ -37,12 +37,15 @@ describe('actions', () => {
   })
 
   it('insert', () => {
-    const obj = { id: 1, name: 'Daniel', email: 'test@test.com' }
-    const objSanitized = { id: 1, name: 'Daniel' }
+    const obj = { id: 1, name: 'Daniel', email: 'test@test.com', other: { p1: 'asd' } }
+    const objSanitized = { id: 1, name: 'Daniel', other: JSON.stringify({ p1: 'asd' }) }
     jest.spyOn(DataTypes, 'toDatabaseValue').mockImplementationOnce(jest.fn(() => objSanitized))
-    repository.insert(obj)
-    expect(repository.databaseLayer.insert).toHaveBeenCalledTimes(1)
-    expect(repository.databaseLayer.insert).toBeCalledWith(objSanitized)
+    jest.spyOn(DataTypes, 'toModelValue').mockImplementationOnce(jest.fn((p) => p))
+    return repository.insert(obj).then(() => {
+      expect(repository.databaseLayer.insert).toHaveBeenCalledTimes(1)
+      expect(repository.databaseLayer.insert).toBeCalledWith(objSanitized)
+      expect(DataTypes.toModelValue).toBeCalledWith(columnMapping, objSanitized)
+    })
   })
 
   it('update', () => {
