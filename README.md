@@ -21,7 +21,7 @@ You need to provide 3 things:
   - Supported options: `type`, `primary_key`, `not_null`, `unique`, `default`
 
 ```javascript
-import { SQLite } from 'expo'
+import { SQLite } from 'expo-sqlite'
 import { BaseModel, types } from 'expo-sqlite-orm'
 
 export default class Animal extends BaseModel {
@@ -179,7 +179,7 @@ Animal.query(options)
 ## How to exec a sql manually?
 
 ```javascript
-import { SQLite } from 'expo'
+import { SQLite } from 'expo-sqlite'
 import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
 
 const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'))
@@ -191,7 +191,7 @@ databaseLayer.executeSql('SELECT * from table_name;').then(response => {
 ## Bulk insert or replace?
 
 ```javascript
-import { SQLite } from 'expo'
+import { SQLite } from 'expo-sqlite'
 import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
 
 const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'), 'table_name')
