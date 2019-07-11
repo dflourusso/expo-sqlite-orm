@@ -201,6 +201,14 @@ databaseLayer.bulkInsertOrReplace(itens).then(response => {
 })
 ```
 
+## Development
+
+```bash
+yarn version --patch
+git push
+git push --tags
+```
+
 ## Author
 
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
