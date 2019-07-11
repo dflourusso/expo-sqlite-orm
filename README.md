@@ -204,9 +204,16 @@ databaseLayer.bulkInsertOrReplace(itens).then(response => {
 ## Development
 
 ```bash
-yarn version --patch
+docker-compose run --rm app version --patch
 git push
 git push --tags
+```
+
+### Test
+
+```bash
+docker-compose run --rm app install
+docker-compose run --rm app test
 ```
 
 ## Author
