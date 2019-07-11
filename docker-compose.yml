@@ -2,9 +2,18 @@ version: '3.7'
 
 services:
   app:
-    image: node:10.11.0-alpine
+    image: paliari/react-native-expo:1.0.2-node10-alpine
     tty: true
     working_dir: /app
     volumes:
       - .:/app
     entrypoint: yarn
+  bump:
+    image: paliari/react-native-expo:1.0.2-node10-alpine
+    tty: true
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ~/.gitconfig:/root/.gitconfig
+    entrypoint: yarn version
+    command: --patch
