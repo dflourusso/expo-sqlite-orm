@@ -11,7 +11,7 @@ export default class BaseModel {
   setProperties(props) {
     const cm = this.constructor.columnMapping
     Object.keys(cm).forEach(k => {
-      if (props[k]) {
+      if (props[k] !== undefined) {
         this[k] = props[k]
       } else if (isFunction(cm[k].default)) {
         this[k] = cm[k].default()
