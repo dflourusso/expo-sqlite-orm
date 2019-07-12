@@ -14,15 +14,17 @@ describe('setProperties', () => {
   it('should set the properties', () => {
     class Tmp extends BaseModel {
       static get columnMapping() {
-        return { id: {}, nome: {}, timestamp: { default: () => '123456' } }
+        return { id: {}, nome: {}, email: {}, active: {}, timestamp: { default: () => '123456' } }
       }
     }
 
     const tmp = new Tmp()
-    const ret = tmp.setProperties({ id: 1, nome: 'Daniel' })
+    const ret = tmp.setProperties({ id: 1, nome: 'Daniel', email: '', active: false })
     expect(tmp.id).toBe(1)
     expect(tmp.nome).toBe('Daniel')
     expect(tmp.timestamp).toBe('123456')
+    expect(tmp.email).toBe('')
+    expect(tmp.active).toBe(false)
     expect(ret).toBeInstanceOf(Tmp)
   })
 
