@@ -179,6 +179,20 @@ Animal.query(options)
 ## How to exec a sql manually?
 
 ```javascript
+import { BaseModel } from 'expo-sqlite-orm'
+
+export default class Example extends BaseModel {
+  //...another model methods...
+  static myCustomMethod() {
+    const sql = 'SELECT * FROM some_table'
+    return this.repository.databaseLayer.executeSql(sql).then(({ rows }) => rows)
+  }
+}
+```
+
+or
+
+```javascript
 import { SQLite } from 'expo-sqlite'
 import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
 
