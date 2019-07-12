@@ -184,8 +184,9 @@ import { BaseModel } from 'expo-sqlite-orm'
 export default class Example extends BaseModel {
   //...another model methods...
   static myCustomMethod() {
-    const sql = 'SELECT * FROM some_table'
-    return this.repository.databaseLayer.executeSql(sql).then(({ rows }) => rows)
+    const sql = 'SELECT * FROM table_name WHERE status = ?'
+    const params = ['active']
+    return this.repository.databaseLayer.executeSql(sql, params).then(({ rows }) => rows)
   }
 }
 ```
