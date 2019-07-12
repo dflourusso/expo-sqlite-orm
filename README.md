@@ -201,6 +201,10 @@ databaseLayer.bulkInsertOrReplace(itens).then(response => {
 })
 ```
 
+## Changelog
+
+- **1.5.0** - Return unlimited rows if `page` is not specified in the `query` params
+
 ## Development
 
 ```bash
