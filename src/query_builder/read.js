@@ -1,7 +1,7 @@
 const defaultOptions = {
   columns: '*',
   page: 1,
-  limit: 30,
+  limit: null,
   where: {},
   order: 'id DESC'
 }
@@ -22,6 +22,7 @@ export function query(tableName, options = {}) {
     ...defaultOptions,
     ...options
   }
+
   const whereStatement = queryWhere(where)
   let sqlParts = [
     'SELECT',
@@ -30,12 +31,17 @@ export function query(tableName, options = {}) {
     tableName,
     whereStatement,
     'ORDER BY',
-    order,
-    'LIMIT',
-    limit,
-    'OFFSET',
-    limit * (page - 1)
+    order
   ]
+
+  if(limit !== null) {
+    sqlParts.push(...[
+      'LIMIT',
+      limit,
+      'OFFSET',
+      limit * (page - 1)
+    ])
+  }
 
   return sqlParts.filter(p => p !== '').join(' ')
 }
