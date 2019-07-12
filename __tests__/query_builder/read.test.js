@@ -49,6 +49,12 @@ describe('query', () => {
   describe('main method', () => {
     it('with no params', () => {
       const sql = qb.query('items')
+      const expected = 'SELECT * FROM items ORDER BY id DESC'
+      expect(sql).toBe(expected)
+    })
+
+    it('with page params', () => {
+      const sql = qb.query('items', { page: 1 })
       const expected = 'SELECT * FROM items ORDER BY id DESC LIMIT 30 OFFSET 0'
       expect(sql).toBe(expected)
     })
@@ -56,11 +62,12 @@ describe('query', () => {
     it('with all possible params', () => {
       const sql = qb.query('items', {
         columns: 'id, nome, status',
-        page: 2,
+        page: 3,
+        limit: 40,
         where: { status_eq: 'normal', criado_em_gt: 'some date' }
       })
       const expected =
-        'SELECT id, nome, status FROM items WHERE status = ? AND criado_em > ? ORDER BY id DESC LIMIT 30 OFFSET 30'
+        'SELECT id, nome, status FROM items WHERE status = ? AND criado_em > ? ORDER BY id DESC LIMIT 40 OFFSET 80'
       expect(sql).toBe(expected)
     })
   })
