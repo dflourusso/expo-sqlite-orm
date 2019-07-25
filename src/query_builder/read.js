@@ -2,7 +2,7 @@ const defaultOptions = {
   columns: '*',
   page: null,
   limit: null,
-  offset: null,
+  offset: 1,
   where: {},
   order: 'id DESC'
 }
@@ -43,9 +43,6 @@ export function query(tableName, options = {}) {
       limit * (page - 1)
     ])
   } else if(limit !== null) {
-    if(offset === null) {
-      offset = 1;
-    }
     sqlParts.push(...[
       'LIMIT',
       limit,
