@@ -81,7 +81,7 @@ export default class DatabaseLayer {
   }
 
   findBy(where = {}) {
-    const options = { where, limit: 1 }
+    const options = { where, limit: 1, offset: 0 }
     const sql = QueryBuilder.query(this.tableName, options)
     const params = Object.values(options.where)
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
