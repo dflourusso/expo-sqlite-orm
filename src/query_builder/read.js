@@ -19,7 +19,7 @@ export function find(tableName) {
  * })
  */
 export function query(tableName, options = {}) {
-  const { columns, page, limit, where, order } = {
+  const { columns, page, limit, where, order, offset } = {
     ...defaultOptions,
     ...options
   }
