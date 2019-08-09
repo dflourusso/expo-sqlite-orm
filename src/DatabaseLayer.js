@@ -1,5 +1,4 @@
 import QueryBuilder from './query_builder'
-import CancelablePromise from 'cancelable-promise';
 
 export default class DatabaseLayer {
   constructor(database, tableName) {
@@ -9,10 +8,10 @@ export default class DatabaseLayer {
 
   async executeBulkSql(sqls, params = []) {
     const database = await this.database()
-    return new CancelablePromise((txResolve, txReject) => {
+    return new Promise((txResolve, txReject) => {
       database.transaction(tx => {
-        CancelablePromise.all(sqls.map((sql, index) => {
-          return new CancelablePromise((sqlResolve, sqlReject) => {
+        Promise.all(sqls.map((sql, index) => {
+          return new Promise((sqlResolve, sqlReject) => {
             tx.executeSql(
               sql,
               params[index],
