@@ -1,11 +1,12 @@
 language: node_js
+node_js:
+  - "10"
 script:
   - yarn test
 deploy:
   provider: npm
   email: dflourusso@gmail.com
-  api_key:
-    secure: FfvCAvB3Bx8E652lb795uHrTph3KyqmXAMNzjRSYJi2NJN6xTJbK1R874ehmQqw63P6WUu392gyDXs/46viStSptoNQZ3U2Dicj5nOenSLCmuwrd9d2iEn5NltpyRAM9frtSShra+C++9E6Vj9iukiEmjibwAl5+oaf/ZkrdG+Z8jG1yDUp/RpU4tdIMKTEnJAh8Eof3wqxSA8OOgzH+dna8G3hpbVdaPsCd0oVe4p0dnzj5KvgKTarW8EETqgrM4yk6j11LXj4PVR32iLuG2VJ3Gx/c4WzNxvSpZ7cwwi6zC2IGQ7BMstRoRLpnoX+1DCRxJ5l/KUKO5KccX0EV2jhqIpJm3KKQepLXWd+Pl54lc31eIDDeTyAOLSBPngLpqeDmdb6tJfZn26TDkPtyd/f1ysXBm3ml9AEbvMsxKPRyl81cCVyIi/DM6OI65PByty+RQhUpSGPIF4j/r6k5Ea0rtpbAZEno/Yrpq84Jqs5HdKwMDv8YRwCqxOAUIHuhhvvQ0tTU6x1JyMQHkqvwlXf+aCpF8GMgAG8Dt7VMuqkkBnj7JstbvQhxZAENkux37gj3gSf+2TPmVQjd1TBFdeF593hKWGHAyx9azL+AjZGdh5rsa6iv9A/h6UWeYM3lrLHis3llHCR0O1+00Fl4q9i+tIkz/iKWzezUYqBoZ/c=
+  api_key: $NPM_TOKEN
   on:
     tags: true
     repo: dflourusso/expo-sqlite-orm
