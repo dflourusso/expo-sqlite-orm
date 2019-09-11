@@ -13,7 +13,8 @@ class ModelExample {
       teste1: { type: types.TEXT },
       teste2: { type: types.FLOAT },
       teste3: { type: types.JSON },
-      teste4: { type: types.TEXT }
+      teste4: { type: types.TEXT },
+      teste5: { type: types.BOOLEAN }
     }
   }
 }
@@ -23,7 +24,8 @@ const data2 = {
   id: 1,
   teste1: 'Asdf',
   teste2: 5.43,
-  teste3: { json_key: 'json_value' }
+  teste3: { json_key: 'json_value' },
+  teste5: true
 }
 
 const resource = new ModelExample(data2)
@@ -37,7 +39,8 @@ describe('toDatabaseValue', () => {
     const expected = {
       ...data2,
       teste3: JSON.stringify(data2.teste3),
-      teste4: null
+      teste4: null,
+      teste5: 1
     }
     expect(parsedValue).toEqual(expected)
   })
@@ -55,7 +58,8 @@ describe('toModelValue', () => {
     const databaseValue = {
       ...data2,
       teste3: JSON.stringify(data2.teste3),
-      teste5: 'Eita'
+      teste5: 1,
+      teste6: 'Eita'
     }
     const parsedValue = DataTypes.toModelValue(
       ModelExample.columnMapping,
