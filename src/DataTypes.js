@@ -20,6 +20,8 @@ function propertyToDatabaseValue(type, value) {
   switch (type) {
     case types.JSON:
       return JSON.stringify(value)
+    case types.BOOLEAN:
+      return value ? 1 : 0
     default:
       return value
   }
@@ -38,6 +40,8 @@ function propertyToModelValue(type, value) {
   switch (type) {
     case types.JSON:
       return JSON.parse(value || null)
+    case types.BOOLEAN:
+      return Boolean(value)
     default:
       return value
   }
