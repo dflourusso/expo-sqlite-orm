@@ -18,7 +18,7 @@ export default class DatabaseLayer {
               (_, { rows, insertId }) => {
                 sqlResolve({ rows: rows._array, insertId })
               },
-              sqlReject
+              (_, error) => { sqlReject(error) }
             )
           })
         })).then(txResolve).catch(txReject)
