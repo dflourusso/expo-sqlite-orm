@@ -15,8 +15,17 @@ export default class DatabaseLayer {
             tx.executeSql(
               sql,
               params[index],
-              (_, { rows, insertId }) => {
-                sqlResolve({ rows: rows._array, insertId })
+              (_, result) => {
+
+                const rows = [...result.rows]
+                let insertId
+                try {
+                  // Extracting insertId when no rows have been added results in an error
+                  insertId = result.insertId
+                } catch {
+                  insertId = null
+                }
+                sqlResolve({ rows, insertId })
               },
               (_, error) => { sqlReject(error) }
             )
@@ -29,7 +38,7 @@ export default class DatabaseLayer {
   async executeSql(sql, params = []) {
     return this.executeBulkSql([sql], [params])
       .then(res => res[0])
-      .catch(errors => {throw errors[0]})
+      .catch(errors => { throw errors[0] })
   }
 
   createTable(columnMapping) {
@@ -81,7 +90,7 @@ export default class DatabaseLayer {
   }
 
   findBy(where = {}) {
-    const options = { where, limit: 1 }
+    const options = { where, limit: 1, page: 1 }
     const sql = QueryBuilder.query(this.tableName, options)
     const params = Object.values(options.where)
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
