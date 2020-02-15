@@ -22,7 +22,7 @@ export default class DatabaseLayer {
                 try {
                   // Extracting insertId when no rows have been added results in an error
                   insertId = result.insertId
-                } catch {
+                } catch (err) {
                   insertId = null
                 }
                 sqlResolve({ rows, insertId })
