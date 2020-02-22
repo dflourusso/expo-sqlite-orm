@@ -17,7 +17,8 @@ export default class DatabaseLayer {
               params[index],
               (_, result) => {
 
-                const rows = [...result.rows]
+                // rows._array on Android, rows on Web
+                const rows = [...(result.rows._array || result.rows)]
                 let insertId
                 try {
                   // Extracting insertId when no rows have been added results in an error
