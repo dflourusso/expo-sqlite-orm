@@ -29,7 +29,7 @@ export default class DatabaseLayer {
   async executeSql(sql, params = []) {
     return this.executeBulkSql([sql], [params])
       .then(res => res[0])
-      .catch(errors => {throw errors[0]})
+      .catch(errors => { throw errors[0] })
   }
 
   createTable(columnMapping) {
