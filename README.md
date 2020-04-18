@@ -239,6 +239,11 @@ docker-compose run --rm app install
 docker-compose run --rm app test
 ```
 
+## Working exapmles
+
+- [https://github.com/dflourusso/expo-sqlite-orm-example](https://github.com/dflourusso/expo-sqlite-orm-example)
+- [https://snack.expo.io/@dflourusso/expo-sqlite-orm-example](https://snack.expo.io/@dflourusso/expo-sqlite-orm-example)
+
 ## Author
 
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
