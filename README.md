@@ -21,7 +21,7 @@ You need to provide 3 things:
   - Supported options: `type`, `primary_key`, `not_null`, `unique`, `default`
 
 ```javascript
-import { SQLite } from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite'
 import { BaseModel, types } from 'expo-sqlite-orm'
 
 export default class Animal extends BaseModel {
