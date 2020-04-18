@@ -7,6 +7,8 @@
 
 It is a simple ORM utility to use with expo sqlite
 
+> Warn: it works only on iOS and Android. Web is not supported ([SEE](https://docs.expo.io/versions/latest/sdk/sqlite/))
+
 ## Install
 
 `yarn add expo-sqlite-orm`
