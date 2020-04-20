@@ -15,8 +15,18 @@ export default class DatabaseLayer {
             tx.executeSql(
               sql,
               params[index],
-              (_, { rows, insertId }) => {
-                sqlResolve({ rows: rows._array, insertId })
+              (_, result) => {
+
+                // rows._array on Android, rows on Web
+                const rows = [...(result.rows._array || result.rows)]
+                let insertId
+                try {
+                  // Extracting insertId when no rows have been added results in an error
+                  insertId = result.insertId
+                } catch (err) {
+                  insertId = null
+                }
+                sqlResolve({ rows, insertId })
               },
               (_, error) => { sqlReject(error) }
             )
@@ -81,7 +91,7 @@ export default class DatabaseLayer {
   }
 
   findBy(where = {}) {
-    const options = { where, limit: 1 }
+    const options = { where, limit: 1, page: 1 }
     const sql = QueryBuilder.query(this.tableName, options)
     const params = Object.values(options.where)
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
