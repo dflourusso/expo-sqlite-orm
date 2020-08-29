@@ -226,5 +226,14 @@ describe('actions', () => {
         expect(res).toEqual([])
       })
     })
+
+    it('find with or statement' , () => {
+      const options = { columns: '*', where: { nome_cont: '%Daniel%' } , useOrStatement: true }
+      return Tmp.query(options).then(res => {
+        expect(Tmp.repository.query).toHaveBeenCalledTimes(1)
+        expect(Tmp.repository.query).toBeCalledWith(options)
+        expect(res).toEqual([])
+      })
+    })
   })
 })
