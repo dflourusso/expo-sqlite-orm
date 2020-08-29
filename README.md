@@ -151,7 +151,8 @@ const options = {
   },
   page: 2,
   limit: 30,
-  order: 'name ASC'
+  order: 'name ASC',
+  useOrStatement: false
 }
 
 Animal.query(options)
