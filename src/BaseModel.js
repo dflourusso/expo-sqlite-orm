@@ -89,7 +89,7 @@ export default class BaseModel {
   }
 
   /**
-   * @param {columns: '*', page: 1, limit: 30, where: {}, order: 'id DESC'} options
+   * @param {columns: '*', page: 1, limit: 30, where: {}, order: 'id DESC', useOrStatement: false } options
    */
   static query(options) {
     return this.repository.query(options)

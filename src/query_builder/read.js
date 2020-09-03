@@ -3,7 +3,8 @@ const defaultOptions = {
   page: null,
   limit: 30,
   where: {},
-  order: 'id DESC'
+  order: 'id DESC', 
+  useOrStatement: false
 }
 
 // Creates the "SELECT" sql statement for find one record
@@ -18,12 +19,12 @@ export function find(tableName) {
  * })
  */
 export function query(tableName, options = {}) {
-  const { columns, page, limit, where, order } = {
+  const { columns, page, limit, where, order, useOrStatement } = {
     ...defaultOptions,
     ...options
   }
 
-  const whereStatement = queryWhere(where)
+  const whereStatement = queryWhere(where, useOrStatement)
   let sqlParts = [
     'SELECT',
     columns,
@@ -69,9 +70,12 @@ export function propertyOperation(statement) {
 }
 
 // Build where query
-export function queryWhere(options) {
+export function queryWhere(options, useOrStatement) {
+  let statement = findStatement(useOrStatement)
   const list = Object.keys(options).map(p => `${propertyOperation(p)} ?`)
-  return list.length > 0 ? `WHERE ${list.join(' AND ')}` : ''
+  return list.length > 0 ? `WHERE ${list.join(statement)}` : ''
 }
+
+const findStatement = (useOrStatement) => useOrStatement ? ' OR ' : ' AND ';
 
 export default { find, query }
