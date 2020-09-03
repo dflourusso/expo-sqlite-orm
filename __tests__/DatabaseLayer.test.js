@@ -70,7 +70,7 @@ describe('execute sql', () => {
   })
 
   it('promise rejects', () => {
-    jest.spyOn(databaseLayer, 'executeBulkSql').mockImplementationOnce(jest.fn(async () => {throw ['Ops']}))
+    jest.spyOn(databaseLayer, 'executeBulkSql').mockImplementationOnce(jest.fn(async () => { throw 'Ops' }))
     return databaseLayer.executeSql('INSERT INTO TEST (test) VALUES (1)').catch(e => {
       expect(e).toEqual('Ops')
     })
