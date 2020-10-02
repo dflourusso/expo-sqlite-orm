@@ -47,7 +47,7 @@ export default class BaseModel {
   }
 
   static create(obj) {
-    return this.repository.insert(obj).then(res => new this(res))
+    return this.repository.insert(new this(obj)).then(res => new this(res))
   }
 
   static update(obj) {
