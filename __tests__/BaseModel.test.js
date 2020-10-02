@@ -85,7 +85,8 @@ describe('actions', () => {
     static get columnMapping() {
       return {
         id: { type: types.INTEGER },
-        nome: { type: types.TEXT }
+        nome: { type: types.TEXT },
+        timestamp: { default: () => '123456' }
       }
     }
   }
@@ -100,14 +101,23 @@ describe('actions', () => {
     expect(Tmp.repository.dropTable).toHaveBeenCalledTimes(1)
   })
 
-  it('create', () => {
-    const obj = { id: 1, nome: 'Daniel' }
-    return Tmp.create(obj)
-      .then(res => {
-        expect(Tmp.repository.insert).toHaveBeenCalledTimes(1)
-        expect(Tmp.repository.insert).toBeCalledWith(obj)
-        expect(res).toBeInstanceOf(Tmp)
-      })
+  describe('create', () => {
+    it('inserts the obj into the db', () => {
+      const obj = { id: 1, nome: 'Daniel', timestamp: 'abcdef' }
+      return Tmp.create(obj)
+        .then(res => {
+          expect(Tmp.repository.insert).toHaveBeenCalledTimes(1)
+          expect(Tmp.repository.insert).toBeCalledWith(obj)
+          expect(res).toBeInstanceOf(Tmp)
+        })
+    });
+
+    it('sets defaults before inserting into the db', () => {
+      const originalObj = { id: 1, nome: 'Daniel' }
+      const settedObj = Object.assign({ timestamp: '123456' }, originalObj);
+      return Tmp.create(originalObj)
+        .then(res => expect(Tmp.repository.insert).toBeCalledWith(settedObj));
+    });
   })
 
   it('update', () => {
