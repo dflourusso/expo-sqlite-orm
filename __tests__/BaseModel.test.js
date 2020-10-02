@@ -110,14 +110,14 @@ describe('actions', () => {
           expect(Tmp.repository.insert).toBeCalledWith(obj)
           expect(res).toBeInstanceOf(Tmp)
         })
-    });
+    })
 
     it('sets defaults before inserting into the db', () => {
       const originalObj = { id: 1, nome: 'Daniel' }
-      const settedObj = Object.assign({ timestamp: '123456' }, originalObj);
+      const settedObj = Object.assign({ timestamp: '123456' }, originalObj)
       return Tmp.create(originalObj)
-        .then(res => expect(Tmp.repository.insert).toBeCalledWith(settedObj));
-    });
+        .then(res => expect(Tmp.repository.insert).toBeCalledWith(settedObj))
+    })
   })
 
   it('update', () => {
