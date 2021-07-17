@@ -1,5 +1,9 @@
 module.exports = {
-  transform: {
-    '^.+\\.js$': 'babel-jest'
-  }
+	preset: 'ts-jest',
+	testEnvironment: 'node',
+	globals: {
+		'ts-jest': {
+			isolatedModules: true
+		}
+	}
 }
