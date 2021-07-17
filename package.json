@@ -13,7 +13,8 @@
     "orm"
   ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "files": [
     "src/"
