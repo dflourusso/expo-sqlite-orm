@@ -55,6 +55,12 @@ export default class DatabaseLayer {
     return this.executeSql(sql, [...params, id])
   }
 
+  insertOrReplace(obj){
+    const sql = QueryBuilder.insertOrReplace(this.tableName, obj)
+    const params = Object.values(props)
+    return this.executeSql(sql, params)
+  }
+
   bulkInsertOrReplace(objs) {
     const list = objs.reduce((accumulator, obj) => {
       const params = Object.values(obj)
