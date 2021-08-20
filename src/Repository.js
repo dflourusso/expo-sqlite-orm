@@ -20,6 +20,16 @@ export default class Repository {
     return this.databaseLayer.insert(obj).then(res => DataTypes.toModelValue(this.columnMapping, res))
   }
 
+  insertOrReplace(_obj) {
+    const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(_obj))
+    return this.databaseLayer.insertOrReplace(obj).then(res => DataTypes.toModelValue(this.columnMapping, res))
+  }
+
+  insertOrReplaceMany(_objs){
+    const arrObjs = _objs.map(obj => DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(obj)))
+    return this.databaseLayer.bulkInsertOrReplace(arrObjs)
+  }
+
   update(_obj) {
     const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(_obj))
     return this.databaseLayer.update(obj)
