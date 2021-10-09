@@ -88,8 +88,18 @@ export default class BaseModel {
       .then(res => (res ? new this(res) : res))
   }
 
+  static insertOrReplace(obj) {
+    return this.repository
+      .insertOrReplace(obj)
+      .then((res) => (res ? new this(res) : res));
+  }
+
+  static insertOrReplaceMany(objs) {
+    return this.repository.insertOrReplaceMany(objs);
+  }
+
   /**
-   * @param {columns: '*', page: 1, limit: 30, where: {}, order: 'id DESC'} options
+   * @param {{columns: '*', page: 1, limit: 30, where: {}, order: 'id DESC'}} options
    */
   static query(options) {
     return this.repository.query(options)
