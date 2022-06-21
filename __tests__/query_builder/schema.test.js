@@ -6,7 +6,7 @@ import {
 import { types } from '../../src/DataTypes'
 
 const columnMapping = {
-  id: { type: types.INTEGER, primary_key: true },
+  id: { type: types.INTEGER, primary_key: true, autoincrement: true },
   numero: { type: types.INTEGER, unique: true, not_null: true },
   codigo_verificacao: { type: types.TEXT },
   created_at: { type: types.DATETIME, not_null: true },
@@ -16,9 +16,19 @@ const columnMapping = {
 describe('create table', () => {
   const expectedColumns =
     'id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, numero INTEGER UNIQUE NOT NULL, codigo_verificacao TEXT, created_at DATETIME NOT NULL, checklist TEXT'
-  it('columns string to create a table', () => {
-    const ret = _createTableColumns(columnMapping)
-    expect(ret).toBe(expectedColumns)
+  describe('columns string to create a table', () => {
+    it('primary key with autoincrement', () => {
+      const ret = _createTableColumns(columnMapping)
+      expect(ret).toBe(expectedColumns)
+    })
+
+    it('primary key without autoincrement', () => {
+      const expectedColumns = 'id TEXT NOT NULL PRIMARY KEY'
+      const ret = _createTableColumns({
+        id: { type: types.TEXT, primary_key: true },
+      })
+      expect(ret).toBe(expectedColumns)
+    })
   })
 
   it('create table statement', () => {

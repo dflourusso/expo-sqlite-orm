@@ -20,7 +20,7 @@ You need to provide 3 things:
 - `database`: Instance of expo SQLite or promise with that instance
 - `tableName`: The name of the table
 - `columnMapping`: The columns for the model and their types
-  - Supported options: `type`, `primary_key`, `not_null`, `unique`, `default`
+  - Supported options: `type`, `primary_key`, `autoincrement`, `not_null`, `unique`, `default`
 
 ```javascript
 import * as SQLite from 'expo-sqlite'
@@ -41,7 +41,7 @@ export default class Animal extends BaseModel {
 
   static get columnMapping() {
     return {
-      id: { type: types.INTEGER, primary_key: true }, // For while only supports id as primary key
+      id: { type: types.INTEGER, primary_key: true, autoincrement: true }, // For while only supports id as primary key
       name: { type: types.TEXT, not_null: true },
       color: { type: types.TEXT },
       age: { type: types.NUMERIC },
