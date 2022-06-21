@@ -221,6 +221,7 @@ databaseLayer.bulkInsertOrReplace(itens).then(response => {
 ## Changelog
 
 - **1.5.0** - Return unlimited rows if `page` is not specified in the `query` params
+- **1.6.0** - Make `autoincrement` property to be optional
 
 ## Development
 
