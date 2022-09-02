@@ -13,7 +13,7 @@ It is a simple ORM utility to use with expo sqlite
 
 `yarn add expo-sqlite-orm`
 
-## Creating a model
+## Creating a repository
 
 You need to provide 3 things:
 
@@ -22,94 +22,103 @@ You need to provide 3 things:
 - `columnMapping`: The columns for the model and their types
   - Supported options: `type`, `primary_key`, `autoincrement`, `not_null`, `unique`, `default`
 
-```javascript
+```typescript
 import * as SQLite from 'expo-sqlite'
-import { BaseModel, types } from 'expo-sqlite-orm'
+import { ColumnMapping, Repository, types } from 'expo-sqlite-orm'
+import React, { useMemo, useState } from 'react'
+import { ScrollView, Text } from 'react-native'
 
-export default class Animal extends BaseModel {
-  constructor(obj) {
-    super(obj)
-  }
-
-  static get database() {
-    return async () => SQLite.openDatabase('database.db')
-  }
-
-  static get tableName() {
-    return 'animals'
-  }
-
-  static get columnMapping() {
-    return {
-      id: { type: types.INTEGER, primary_key: true, autoincrement: true }, // For while only supports id as primary key
-      name: { type: types.TEXT, not_null: true },
-      color: { type: types.TEXT },
-      age: { type: types.NUMERIC },
-      another_uid: { type: types.INTEGER, unique: true },
-      timestamp: { type: types.INTEGER, default: () => Date.now() }
-    }
-  }
+interface Animal {
+  id: number
+  name: string
+  color: string
+  age: number
+  another_uid?: number
+  timestamp?: number
 }
+
+const columMapping: ColumnMapping<Animal> = {
+  id: { type: types.INTEGER, primary_key: true, autoincrement: true }, // For while only supports id as primary key
+  name: { type: types.TEXT, not_null: true },
+  color: { type: types.TEXT },
+  age: { type: types.NUMERIC },
+  another_uid: { type: types.INTEGER, unique: true },
+  timestamp: { type: types.INTEGER, default: () => Date.now() },
+}
+
+export function CadastrosScreen() {
+  const [animals, setAnimals] = useState<Animal[]>([])
+
+  const animalRepository = useMemo(() => {
+    const database = SQLite.openDatabase('dbName')
+    return new Repository(database, 'animals', columMapping)
+  }, [])
+
+  const onPressCreateTable = () => {
+    animalRepository.createTable()
+  }
+
+  const onPressInsert = () => {
+    animalRepository.insert({ name: 'Bob', color: 'Brown', age: 2 }).then((createdAnimal) => {
+      console.log(createdAnimal)
+    })
+  }
+
+  const onPressQuery = () => {
+    animalRepository.query({ where: { age_gt: 1 } }).then((foundAnimals) => {
+      console.log(foundAnimals)
+      setAnimals(foundAnimals)
+    })
+  }
+
+  return (
+    <ScrollView>
+      <Text onPress={onPressCreateTable}>Create table</Text>
+      <Text onPress={onPressInsert}>Insert Animal</Text>
+      <Text onPress={onPressQuery}>List Animals</Text>
+      <Text>{JSON.stringify(animals, null, 1)}</Text>
+    </ScrollView>
+  )
+}
+
 ```
 
 ## Database operations
 
 ### Drop table
 
-`Animal.dropTable()`
+`animalRepository.dropTable()`
 
 ### Create table
 
-`Animal.createTable()`
+`animalRepository.createTable()`
 
-### Create a record
+### Insert a record
 
-```javascript
-const props = {
+```typescript
+const props: Animal = {
   name: 'Bob',
   color: 'Brown',
   age: 2
 }
 
-const animal = new Animal(props)
-animal.save()
-```
-
-or
-
-```javascript
-const props = {
-  name: 'Bob',
-  color: 'Brown',
-  age: 2
-}
-
-Animal.create(props)
+animalRepository.insert(props)
 ```
 
 ### Find a record
 
 ```javascript
 const id = 1
-Animal.find(id)
+animalRepository.find(id)
 ```
 
 or
 
 ```javascript
-Animal.findBy({ age_eq: 12345, color_cont: '%Brown%' })
+animalRepository.findBy({ age_eq: 12345, color_cont: '%Brown%' })
 ```
 
 ### Update a record
-
-```javascript
-const id = 1
-const animal = await Animal.find(id)
-animal.age = 3
-animal.save()
-```
-
-or
 
 ```javascript
 const props = {
@@ -117,28 +126,20 @@ const props = {
   age: 3
 }
 
-Animal.update(props)
+animalRepository.update(props)
 ```
 
 ### Destroy a record
 
 ```javascript
 const id = 1
-Animal.destroy(id)
-```
-
-or
-
-```javascript
-const id = 1
-const animal = await Animal.find(id)
-animal.destroy()
+animalRepository.destroy(id)
 ```
 
 ### Destroy all records
 
 ```javascript
-Animal.destroyAll()
+animalRepository.destroyAll()
 ```
 
 ### Query
@@ -154,7 +155,7 @@ const options = {
   order: 'name ASC'
 }
 
-Animal.query(options)
+animalRepository.query(options)
 ```
 
 **Where operations**
@@ -180,48 +181,37 @@ Animal.query(options)
 
 ## How to exec a sql manually?
 
-```javascript
-import { BaseModel } from 'expo-sqlite-orm'
-
-export default class Example extends BaseModel {
-  //...another model methods...
-  static myCustomMethod() {
-    const sql = 'SELECT * FROM table_name WHERE status = ?'
-    const params = ['active']
-    return this.repository.databaseLayer.executeSql(sql, params).then(({ rows }) => rows)
-  }
+```typescript
+myCustomMethod() {
+  const sql = 'SELECT * FROM table_name WHERE status = ?'
+  const params = ['active']
+  return animalRepository.databaseLayer.executeSql(sql, params).then(({ rows }) => rows)
 }
-```
-
-or
-
-```javascript
-import { SQLite } from 'expo-sqlite'
-import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
-
-const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'))
-databaseLayer.executeSql('SELECT * from table_name;').then(response => {
-  console.log(response)
-})
 ```
 
 ## Bulk insert or replace?
 
 ```javascript
-import { SQLite } from 'expo-sqlite'
-import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
-
-const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('database_name'), 'table_name')
 const itens = [{id: 1, color: 'green'}, {id: 2, color: 'red'}]
-databaseLayer.bulkInsertOrReplace(itens).then(response => {
+animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
   console.log(response)
 })
 ```
+
+# TODO
+
+- [x] Add basic typescript support
+- [x] Make it easier to use with react-hooks
+- [ ] Some types like "where" are not completed yet
+- [ ] Fix some typecheckings and remove ts-igonre
 
 ## Changelog
 
 - **1.5.0** - Return unlimited rows if `page` is not specified in the `query` params
 - **1.6.0** - Make `autoincrement` property to be optional
+- **2.0.0** - BREAKING CHANGE
+  - Add typescript support
+  - Remove BaseModel in favor of Repository (Easier to use with react-hooks)
 
 ## Development
 

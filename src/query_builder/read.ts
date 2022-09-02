@@ -1,3 +1,13 @@
+export interface DefaultQueryOptions {
+  columns: string;
+  page: number;
+  limit: number;
+  where: Record<string, any>;
+  order: string;
+}
+
+export type Operation = 'eq' | 'neq' | 'lt' | 'lteq' | 'gt' | 'gteq' | 'cont';
+
 const defaultOptions = {
   columns: '*',
   page: null,
@@ -7,7 +17,7 @@ const defaultOptions = {
 }
 
 // Creates the "SELECT" sql statement for find one record
-export function find(tableName) {
+export function find(tableName: string) {
   return `SELECT * FROM ${tableName} WHERE id = ? LIMIT 1;`
 }
 
@@ -17,7 +27,7 @@ export function find(tableName) {
  *   where: {status_eq: 'encerrado'}
  * })
  */
-export function query(tableName, options = {}) {
+export function query(tableName: string, options = {}) {
   const { columns, page, limit, where, order } = {
     ...defaultOptions,
     ...options
@@ -34,12 +44,12 @@ export function query(tableName, options = {}) {
     order
   ]
 
-  if(page !== null) {
+  if (page !== null) {
     sqlParts.push(...[
       'LIMIT',
-      limit,
+      `${limit}`,
       'OFFSET',
-      limit * (page - 1)
+      `${limit * (page - 1)}`
     ])
   }
 
@@ -47,8 +57,8 @@ export function query(tableName, options = {}) {
 }
 
 // Convert operators to database syntax
-export function propertyOperation(statement) {
-  const operations = {
+export function propertyOperation(statement: string) {
+  const operations: Record<Operation, string> = {
     eq: '=',
     neq: '<>',
     lt: '<',
@@ -58,9 +68,9 @@ export function propertyOperation(statement) {
     cont: 'LIKE'
   }
   const pieces = statement.split('_')
-  const operation = pieces.pop()
+  const operation = pieces.pop() as Operation
   const property = pieces.join('_')
-  if (!operations.hasOwnProperty(operation)) {
+  if (!operation || !operations.hasOwnProperty(operation)) {
     throw new Error(
       'Operation not found, use (eq, neq, lt, lteq, gt, gteq, cont)'
     )
@@ -69,7 +79,7 @@ export function propertyOperation(statement) {
 }
 
 // Build where query
-export function queryWhere(options) {
+export function queryWhere(options: Record<string, any>) {
   const list = Object.keys(options).map(p => `${propertyOperation(p)} ?`)
   return list.length > 0 ? `WHERE ${list.join(' AND ')}` : ''
 }

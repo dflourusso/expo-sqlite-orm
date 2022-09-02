@@ -1,13 +1,18 @@
+import { WebSQLDatabase } from 'expo-sqlite'
+import { ColumnOptions } from './DataTypes'
 import QueryBuilder from './query_builder'
 
-export default class DatabaseLayer {
-  constructor(database, tableName) {
+export default class DatabaseLayer<T> {
+  private database: WebSQLDatabase
+  private tableName: string
+
+  constructor(database: WebSQLDatabase, tableName: string) {
     this.database = database
     this.tableName = tableName
   }
 
-  async executeBulkSql(sqls, params = []) {
-    const database = await this.database()
+  async executeBulkSql(sqls: string[], params: any[] = []) {
+    const database = this.database
     return new Promise((txResolve, txReject) => {
       database.transaction(tx => {
         Promise.all(sqls.map((sql, index) => {
@@ -18,6 +23,7 @@ export default class DatabaseLayer {
               (_, { rows, insertId }) => {
                 sqlResolve({ rows: rows._array, insertId })
               },
+              // @ts-ignore
               (_, error) => { sqlReject(error) }
             )
           })
@@ -26,13 +32,13 @@ export default class DatabaseLayer {
     })
   }
 
-  async executeSql(sql, params = []) {
+  async executeSql(sql: string, params: any[] = []) {
     return this.executeBulkSql([sql], [params])
       .then(res => res[0])
       .catch(error => { throw error })
   }
 
-  createTable(columnMapping) {
+  createTable(columnMapping: Record<keyof T, ColumnOptions>) {
     const sql = QueryBuilder.createTable(this.tableName, columnMapping)
     return this.executeSql(sql).then(() => true)
   }
@@ -42,14 +48,15 @@ export default class DatabaseLayer {
     return this.executeSql(sql).then(() => true)
   }
 
-  insert(obj) {
+  insert<P = any>(obj: P) {
     const sql = QueryBuilder.insert(this.tableName, obj)
     const params = Object.values(obj)
     return this.executeSql(sql, params).then(({ insertId }) => this.find(insertId))
   }
 
-  update(obj) {
+  update<P = any>(obj: P) {
     const sql = QueryBuilder.update(this.tableName, obj)
+    // @ts-ignore
     const { id, ...props } = obj
     const params = Object.values(props)
     return this.executeSql(sql, [...params, id])
@@ -65,7 +72,7 @@ export default class DatabaseLayer {
     return this.executeBulkSql(list.sqls, list.params)
   }
 
-  destroy(id) {
+  destroy(id: any) {
     const sql = QueryBuilder.destroy(this.tableName)
     return this.executeSql(sql, [id]).then(() => true)
   }
@@ -75,7 +82,7 @@ export default class DatabaseLayer {
     return this.executeSql(sql).then(() => true)
   }
 
-  find(id) {
+  find(id: any) {
     const sql = QueryBuilder.find(this.tableName)
     return this.executeSql(sql, [id]).then(({ rows }) => rows[0])
   }
@@ -89,6 +96,7 @@ export default class DatabaseLayer {
 
   query(options = {}) {
     const sql = QueryBuilder.query(this.tableName, options)
+    // @ts-ignore
     const params = Object.values(options.where || {})
     return this.executeSql(sql, params).then(({ rows }) => rows)
   }

@@ -1,8 +1,14 @@
-import DataTypes from './DataTypes'
+import { WebSQLDatabase } from 'expo-sqlite'
 import DatabaseLayer from './DatabaseLayer'
+import DataTypes, { ColumnOptions } from './DataTypes'
 
-export default class Repository {
-  constructor(database, tableName, columnMapping) {
+export type ColumnMapping<T> = Record<keyof T, ColumnOptions>
+
+export class Repository<T = Record<string, any> | { id: any }> {
+  private columnMapping: Record<keyof T, ColumnOptions>
+  public readonly databaseLayer: DatabaseLayer<T>
+
+  constructor(database: WebSQLDatabase, tableName: string, columnMapping: ColumnMapping<T>) {
     this.columnMapping = columnMapping
     this.databaseLayer = new DatabaseLayer(database, tableName)
   }
@@ -15,40 +21,42 @@ export default class Repository {
     return this.databaseLayer.dropTable()
   }
 
-  insert(_obj) {
-    const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(_obj))
-    return this.databaseLayer.insert(obj).then(res => DataTypes.toModelValue(this.columnMapping, res))
+  insert(data: Omit<T, 'id'>): Promise<T> {
+    // @ts-ignore
+    const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(data))
+    return this.databaseLayer.insert(obj).then(res => DataTypes.toModelValue(this.columnMapping, res) as T)
   }
 
-  update(_obj) {
-    const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(_obj))
+  update(data: T): Promise<T> {
+    const obj = DataTypes.toDatabaseValue(this.columnMapping, this._sanitize(data))
     return this.databaseLayer.update(obj)
   }
 
-  destroy(id) {
+  destroy(id: any): Promise<boolean> {
     return this.databaseLayer.destroy(id)
   }
 
-  destroyAll() {
+  destroyAll(): Promise<boolean> {
     return this.databaseLayer.destroyAll()
   }
 
-  find(id) {
-    return this.databaseLayer.find(id).then(res => (res ? DataTypes.toModelValue(this.columnMapping, res) : null))
+  find(id: any): Promise<T | null> {
+    return this.databaseLayer.find(id).then(res => (res ? DataTypes.toModelValue(this.columnMapping, res) as T : null))
   }
 
-  findBy(where = {}) {
-    return this.databaseLayer.findBy(where).then(res => (res ? DataTypes.toModelValue(this.columnMapping, res) : null))
+  findBy(where = {}): Promise<T | null> {
+    return this.databaseLayer.findBy(where).then(res => (res ? DataTypes.toModelValue(this.columnMapping, res) as T : null))
   }
 
-  query(options = {}) {
-    return this.databaseLayer.query(options).then(res => res.map(p => DataTypes.toModelValue(this.columnMapping, p)))
+  query(options = {}): Promise<T[]> {
+    return this.databaseLayer.query(options).then(res => res.map((p: any) => DataTypes.toModelValue(this.columnMapping, p)))
   }
 
-  _sanitize(obj) {
-    const allowedKeys = Object.keys(this.columnMapping)
-    return Object.keys(obj).reduce((ret, key) => {
+  private _sanitize(obj: Partial<T>) {
+    const allowedKeys = Object.keys(this.columnMapping) as (keyof T)[]
+
+    return Object.keys(obj).reduce((ret, key: any) => {
       return allowedKeys.includes(key) ? { ...ret, [key]: obj[key] } : ret
-    }, {})
+    }, {} as T)
   }
 }

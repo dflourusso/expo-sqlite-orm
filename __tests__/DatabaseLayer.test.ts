@@ -23,13 +23,14 @@ jest.mock('../src/query_builder', () => {
 import DatabaseLayer from '../src/DatabaseLayer'
 import Qb from '../src/query_builder'
 import { types } from '../src/DataTypes'
+import { WebSQLDatabase } from 'expo-sqlite'
 
 const executeSql = jest.fn((sql, params, cb, errorCb) => {
   const insertId = /^INSERT/.test(sql) ? 1 : null
   cb(null, { rows: { _array: [] }, insertId })
 })
 const transaction = jest.fn(cb => cb({ executeSql }))
-const database = jest.fn(() => Promise.resolve({ transaction }))
+const database = { transaction } as unknown as WebSQLDatabase
 const tableName = 'tests'
 
 const columnMapping = {
@@ -40,7 +41,7 @@ const columnMapping = {
 }
 
 describe('execute sql', () => {
-  const databaseLayer = new DatabaseLayer(database, tableName, columnMapping)
+  const databaseLayer = new DatabaseLayer(database, tableName)
   it('call execute with the correct params', () => {
     const sql = 'select * from tests where id = ?'
     const params = [1]
@@ -79,7 +80,7 @@ describe('execute sql', () => {
 
 describe('run statements', () => {
   const qbMockReturns = 'query'
-  const databaseLayer = new DatabaseLayer(database, tableName, columnMapping)
+  const databaseLayer = new DatabaseLayer(database, tableName)
   const fn = jest.fn(() => Promise.resolve({ rows: [], insertId: null }))
   databaseLayer.executeSql = fn
   beforeEach(jest.clearAllMocks)

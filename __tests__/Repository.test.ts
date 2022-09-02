@@ -1,21 +1,12 @@
 jest.mock('../src/DatabaseLayer')
-import Repository from '../src/Repository'
 import DataTypes, { types } from '../src/DataTypes'
-import DatabaseLayer from '../src/DatabaseLayer'
+import { Repository } from '../src/Repository'
 
 const columnMapping = {
   id: { type: types.INTEGER, primary_key: true },
   name: { type: types.TEXT }
 }
 
-describe('constructor', () => {
-  it('should not set props', () => {
-    const repository = new Repository('databaseInstance', 'test', columnMapping)
-    expect(repository.columnMapping).toEqual(columnMapping)
-    expect(repository.databaseLayer).toEqual(new DatabaseLayer())
-    expect(DatabaseLayer.prototype.constructor).toHaveBeenCalledWith('databaseInstance', 'test')
-  })
-})
 
 
 describe('actions', () => {

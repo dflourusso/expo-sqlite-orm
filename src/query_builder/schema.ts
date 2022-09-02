@@ -6,13 +6,18 @@ export const customTypes = { JSON: 'TEXT' }
 export function _createTableColumns(columnMapping) {
   return Object.entries(columnMapping)
     .map(i => {
+      // @ts-ignore
       const type = i[1].type
       const parts = [i[0], customTypes[type] || type]
+
+      // @ts-ignore
       if (i[1].primary_key) {
         parts.push('NOT NULL PRIMARY KEY')
         if (i[1].autoincrement) parts.push('AUTOINCREMENT')
       } else {
+        // @ts-ignore
         if (i[1].unique) parts.push('UNIQUE')
+        // @ts-ignore
         if (i[1].not_null) parts.push('NOT NULL')
       }
       return parts.join(' ')

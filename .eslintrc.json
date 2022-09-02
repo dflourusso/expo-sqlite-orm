@@ -6,15 +6,21 @@
     "node": true,
     "jest/globals": true
   },
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     },
     "sourceType": "module"
   },
-  "extends": ["eslint:recommended", "plugin:jest/recommended"],
-  "plugins": ["jest"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended"
+  ],
+  "plugins": [
+    "jest",
+    "@typescript-eslint"
+  ],
   "rules": {
     "no-const-assign": "warn",
     "no-this-before-super": "warn",
