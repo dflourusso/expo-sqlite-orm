@@ -1,5 +1,13 @@
 import qb from '../../src/query_builder'
 import { propertyOperation, queryWhere } from '../../src/query_builder/read'
+import { IQueryOperation, IQueryWhere } from '../../src/types'
+
+interface Animal {
+  id: string
+  name: string
+  status: string
+  created_at: string
+}
 
 it('find statement', () => {
   const ret = qb.find('tests')
@@ -9,39 +17,37 @@ it('find statement', () => {
 
 describe('query', () => {
   describe('auxiliar methods', () => {
-    it('propertyOperation', () => {
-      const tests = [
-        ['criado_em', 'eq', '='],
-        ['criado_em', 'neq', '<>'],
-        ['criado_em', 'lt', '<'],
-        ['criado_em', 'lteq', '<='],
-        ['criado_em', 'gt', '>'],
-        ['criado_em', 'gteq', '>='],
-        ['nome', 'cont', 'LIKE']
-      ]
-      tests.forEach(p =>
-        expect(propertyOperation(`${p[0]}_${p[1]}`)).toBe(`${p[0]} ${p[2]}`)
-      )
+    it.each([
+      ['created_at', ['equals'], 'created_at = ?'],
+      ['created_at', ['notEquals'], 'created_at <> ?'],
+      ['created_at', ['lt'], 'created_at < ?'],
+      ['created_at', ['lte'], 'created_at <= ?'],
+      ['created_at', ['gt'], 'created_at > ?'],
+      ['created_at', ['gte'], 'created_at >= ?'],
+      ['created_at', ['lt', 'gt'], 'created_at < ? AND created_at > ?'],
+      ['name', ['contains'], 'name LIKE ?']
+    ])('propertyOperation %s %s %s', (property, options, expected) => {
+      expect(propertyOperation(property, options as IQueryOperation[])).toBe(expected)
     })
 
     it('propertyOperation with invalid operator', () => {
-      const func = () => propertyOperation('nome_asdf')
+      const func = () => propertyOperation('name', ['asdf'] as unknown as IQueryOperation[])
       expect(func).toThrowError()
     })
 
     it('queryWhere with one param', () => {
-      const options = { status_eq: 'normal' }
+      const options: IQueryWhere = { status: { equals: 'normal' } }
       const expected = 'WHERE status = ?'
       expect(queryWhere(options)).toBe(expected)
     })
 
     it('queryWhere with more params', () => {
       const options = {
-        nome_cont: 'Daniel',
-        status_eq: 'normal',
-        criado_em_gt: new Date()
+        name: { contains: 'Daniel' },
+        status: { equals: 'normal' },
+        created_at: { gt: new Date() }
       }
-      const expected = 'WHERE nome LIKE ? AND status = ? AND criado_em > ?'
+      const expected = 'WHERE name LIKE ? AND status = ? AND created_at > ?'
       expect(queryWhere(options)).toBe(expected)
     })
   })
@@ -60,14 +66,14 @@ describe('query', () => {
     })
 
     it('with all possible params', () => {
-      const sql = qb.query('items', {
-        columns: 'id, nome, status',
+      const sql = qb.query<Animal>('items', {
+        columns: ['id', 'name', 'status'],
         page: 3,
         limit: 40,
-        where: { status_eq: 'normal', criado_em_gt: 'some date' }
+        where: { status: { equals: 'normal' }, created_at: { gt: 'some date' } }
       })
       const expected =
-        'SELECT id, nome, status FROM items WHERE status = ? AND criado_em > ? ORDER BY id DESC LIMIT 40 OFFSET 80'
+        'SELECT id, name, status FROM items WHERE status = ? AND created_at > ? ORDER BY id DESC LIMIT 40 OFFSET 80'
       expect(sql).toBe(expected)
     })
   })

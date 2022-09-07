@@ -65,7 +65,7 @@ export function CadastrosScreen() {
   }
 
   const onPressQuery = () => {
-    animalRepository.query({ where: { age_gt: 1 } }).then((foundAnimals) => {
+    animalRepository.query({ where: { age: { gt: 1 } } }).then((foundAnimals) => {
       console.log(foundAnimals)
       setAnimals(foundAnimals)
     })
@@ -115,7 +115,7 @@ animalRepository.find(id)
 or
 
 ```javascript
-animalRepository.findBy({ age_eq: 12345, color_cont: '%Brown%' })
+animalRepository.findBy({ age: { equals: 12345 }, color: { contains: '%Brown%' } })
 ```
 
 ### Update a record
@@ -148,11 +148,11 @@ animalRepository.destroyAll()
 const options = {
   columns: 'id, name',
   where: {
-    age_gt: 2
+    age: { gt: 2 }
   },
   page: 2,
   limit: 30,
-  order: 'name ASC'
+  order: { name: 'ASC' }
 }
 
 animalRepository.query(options)
@@ -160,13 +160,13 @@ animalRepository.query(options)
 
 **Where operations**
 
-- eq: `=`,
-- neq: `<>`,
+- equals: `=`,
+- notEquals: `<>`,
 - lt: `<`,
-- lteq: `<=`,
+- lte: `<=`,
 - gt: `>`,
-- gteq: `>=`,
-- cont: `LIKE`
+- gte: `>=`,
+- contains: `LIKE`
 
 ## Data types
 
@@ -202,8 +202,10 @@ animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
 
 - [x] Add basic typescript support
 - [x] Make it easier to use with react-hooks
-- [ ] Some types like "where" are not completed yet
+- [x] Complete typescript autocomplete for where queries
+- [ ] Add migrations feature
 - [ ] Fix some typecheckings and remove ts-igonre
+- [ ] Allow OR statement
 
 ## Changelog
 
