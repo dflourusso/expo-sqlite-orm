@@ -1,19 +1,11 @@
-export interface DefaultQueryOptions {
-  columns: string;
-  page: number;
-  limit: number;
-  where: Record<string, any>;
-  order: string;
-}
+import { IQueryOperation, IQueryOptions, IQueryWhere } from "../types"
 
-export type Operation = 'eq' | 'neq' | 'lt' | 'lteq' | 'gt' | 'gteq' | 'cont';
-
-const defaultOptions = {
-  columns: '*',
+const defaultOptions: IQueryOptions<{ id: any }> = {
+  columns: ['*'],
   page: null,
   limit: 30,
   where: {},
-  order: 'id DESC'
+  order: { id: 'DESC' }
 }
 
 // Creates the "SELECT" sql statement for find one record
@@ -23,11 +15,11 @@ export function find(tableName: string) {
 
 /* Creates the "SELECT" sql statement for query records
  * Ex: qb.query({
- *   columns: 'id, nome, status',
- *   where: {status_eq: 'encerrado'}
+ *   columns: ['id', 'name', 'status'],
+ *   where: { status: { equals: 'finished' }}
  * })
  */
-export function query(tableName: string, options = {}) {
+export function query<T = {}>(tableName: string, options: IQueryOptions<T> = {}) {
   const { columns, page, limit, where, order } = {
     ...defaultOptions,
     ...options
@@ -36,12 +28,12 @@ export function query(tableName: string, options = {}) {
   const whereStatement = queryWhere(where)
   let sqlParts = [
     'SELECT',
-    columns,
+    columns.join(', '),
     'FROM',
     tableName,
     whereStatement,
     'ORDER BY',
-    order
+    Object.entries(order).map(p => p.join(' ')).join(', ')
   ]
 
   if (page !== null) {
@@ -57,30 +49,34 @@ export function query(tableName: string, options = {}) {
 }
 
 // Convert operators to database syntax
-export function propertyOperation(statement: string) {
-  const operations: Record<Operation, string> = {
-    eq: '=',
-    neq: '<>',
+export function propertyOperation<T extends {}>(property: keyof T, options: IQueryOperation[]) {
+  const operations: Record<IQueryOperation, string> = {
+    equals: '=',
+    notEquals: '<>',
     lt: '<',
-    lteq: '<=',
+    lte: '<=',
     gt: '>',
-    gteq: '>=',
-    cont: 'LIKE'
+    gte: '>=',
+    contains: 'LIKE',
+    in: 'IN',
+    notIn: 'NOT IN'
   }
-  const pieces = statement.split('_')
-  const operation = pieces.pop() as Operation
-  const property = pieces.join('_')
-  if (!operation || !operations.hasOwnProperty(operation)) {
-    throw new Error(
-      'Operation not found, use (eq, neq, lt, lteq, gt, gteq, cont)'
-    )
-  }
-  return `${property} ${operations[operation]}`
+
+  return options.map((option) => {
+    if (!operations[option]) {
+      throw new Error(
+        `Operation not found, use (${Object.keys(operations).join(', ')})`
+      )
+    }
+    return `${String(property)} ${operations[option]} ?`
+  }).join(' AND ')
 }
 
 // Build where query
-export function queryWhere(options: Record<string, any>) {
-  const list = Object.keys(options).map(p => `${propertyOperation(p)} ?`)
+export function queryWhere<T = any>(options: IQueryWhere<T>) {
+  const list = Object.entries(options).map(([property, conditions]) => {
+    return `${propertyOperation(property, Object.keys(conditions) as IQueryOperation[])}`
+  })
   return list.length > 0 ? `WHERE ${list.join(' AND ')}` : ''
 }
 
