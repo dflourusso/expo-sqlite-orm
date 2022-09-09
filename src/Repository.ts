@@ -1,6 +1,7 @@
 import { WebSQLDatabase } from 'expo-sqlite'
 import DatabaseLayer from './DatabaseLayer'
 import DataTypes, { ColumnOptions } from './DataTypes'
+import { IQueryOptions } from './types'
 
 export type ColumnMapping<T> = Record<keyof T, ColumnOptions>
 
@@ -48,7 +49,7 @@ export class Repository<T = Record<string, any> | { id: any }> {
     return this.databaseLayer.findBy(where).then(res => (res ? DataTypes.toModelValue(this.columnMapping, res) as T : null))
   }
 
-  query(options = {}): Promise<T[]> {
+  query(options: IQueryOptions<T> = {}): Promise<T[]> {
     return this.databaseLayer.query(options).then(res => res.map((p: any) => DataTypes.toModelValue(this.columnMapping, p)))
   }
 

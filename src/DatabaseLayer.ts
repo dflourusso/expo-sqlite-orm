@@ -1,6 +1,7 @@
 import { WebSQLDatabase } from 'expo-sqlite'
 import { ColumnOptions } from './DataTypes'
 import QueryBuilder from './query_builder'
+import { IQueryOptions } from './types'
 
 export default class DatabaseLayer<T> {
   private database: WebSQLDatabase
@@ -94,9 +95,8 @@ export default class DatabaseLayer<T> {
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
   }
 
-  query(options = {}) {
+  query(options: IQueryOptions<T> = {}) {
     const sql = QueryBuilder.query(this.tableName, options)
-    // @ts-ignore
     const params = Object.values(options.where || {})
     return this.executeSql(sql, params).then(({ rows }) => rows)
   }
