@@ -1,5 +1,4 @@
 import { WebSQLDatabase } from 'expo-sqlite'
-import { ColumnOptions } from './DataTypes'
 import QueryBuilder from './query_builder'
 import { IQueryOptions } from './types'
 
@@ -37,16 +36,6 @@ export default class DatabaseLayer<T> {
     return this.executeBulkSql([sql], [params])
       .then(res => res[0])
       .catch(error => { throw error })
-  }
-
-  createTable(columnMapping: Record<keyof T, ColumnOptions>) {
-    const sql = QueryBuilder.createTable(this.tableName, columnMapping)
-    return this.executeSql(sql).then(() => true)
-  }
-
-  dropTable() {
-    const sql = QueryBuilder.dropTable(this.tableName)
-    return this.executeSql(sql).then(() => true)
   }
 
   insert<P = any>(obj: P) {
@@ -97,7 +86,8 @@ export default class DatabaseLayer<T> {
 
   query(options: IQueryOptions<T> = {}) {
     const sql = QueryBuilder.query(this.tableName, options)
-    const params = Object.values(options.where || {})
+    const params = Object.values(options.where || {}).map(option => Object.values(option)).flat()
+
     return this.executeSql(sql, params).then(({ rows }) => rows)
   }
 }

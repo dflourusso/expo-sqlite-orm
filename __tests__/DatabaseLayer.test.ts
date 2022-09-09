@@ -6,9 +6,7 @@ jest.mock('../src/query_builder', () => {
     'update',
     'insertOrReplace',
     'destroy',
-    'destroyAll',
-    'createTable',
-    'dropTable'
+    'destroyAll'
   ]
   return methods.reduce((o, p) => {
     if (p === 'insertOrReplace') {
@@ -20,10 +18,18 @@ jest.mock('../src/query_builder', () => {
   }, {})
 })
 
+import { WebSQLDatabase } from 'expo-sqlite'
 import DatabaseLayer from '../src/DatabaseLayer'
 import Qb from '../src/query_builder'
-import { types } from '../src/DataTypes'
-import { WebSQLDatabase } from 'expo-sqlite'
+import { IQueryOptions } from '../src/types'
+
+interface ITests {
+  id: number
+  teste1: string 
+  teste2: number 
+  teste3: string
+}
+
 
 const executeSql = jest.fn((sql, params, cb, errorCb) => {
   const insertId = /^INSERT/.test(sql) ? 1 : null
@@ -33,15 +39,8 @@ const transaction = jest.fn(cb => cb({ executeSql }))
 const database = { transaction } as unknown as WebSQLDatabase
 const tableName = 'tests'
 
-const columnMapping = {
-  id: { type: types.INTEGER },
-  teste1: { type: types.TEXT },
-  teste2: { type: types.FLOAT },
-  teste3: { type: types.JSON }
-}
-
 describe('execute sql', () => {
-  const databaseLayer = new DatabaseLayer(database, tableName)
+  const databaseLayer = new DatabaseLayer<ITests>(database, tableName)
   it('call execute with the correct params', () => {
     const sql = 'select * from tests where id = ?'
     const params = [1]
@@ -57,7 +56,7 @@ describe('execute sql', () => {
   })
 
   it('promise returns the expected values', () => {
-    return databaseLayer.executeSql().then(res => {
+    return databaseLayer.executeSql('').then(res => {
       expect(res.rows).toEqual([])
       expect(res.insertId).toBeNull()
     })
@@ -80,24 +79,10 @@ describe('execute sql', () => {
 
 describe('run statements', () => {
   const qbMockReturns = 'query'
-  const databaseLayer = new DatabaseLayer(database, tableName)
+  const databaseLayer = new DatabaseLayer<ITests>(database, tableName)
   const fn = jest.fn(() => Promise.resolve({ rows: [], insertId: null }))
   databaseLayer.executeSql = fn
   beforeEach(jest.clearAllMocks)
-
-  it('create table', () => {
-    const response = databaseLayer.createTable(columnMapping)
-    expect(Qb.createTable).toBeCalledWith(tableName, columnMapping)
-    expect(fn).toBeCalledWith(qbMockReturns)
-    expect(response).toBeInstanceOf(Promise)
-  })
-
-  it('drop table', () => {
-    const response = databaseLayer.dropTable()
-    expect(Qb.dropTable).toBeCalledWith(tableName)
-    expect(fn).toBeCalledWith(qbMockReturns)
-    expect(response).toBeInstanceOf(Promise)
-  })
 
   it('insert', () => {
     const insertFn = jest.fn(async () => ({ rows: [{ id: 1, teste3: '{"prop":123}' }], insertId: 1 }))
@@ -217,8 +202,8 @@ describe('run statements', () => {
   it('query', () => {
     const fn = jest.fn(async () => ({ rows: [{ id: 1, teste3: '{"prop":123}' }] }))
     databaseLayer.executeSql = fn
-    const options = { columns: 'id, teste3', where: { id_eq: 1 } }
-    const params = Object.values(options.where)
+    const options: IQueryOptions<ITests> = { columns: ['id', 'teste3'], where: { id: { equals: 1 } } }
+    const params = Object.values(options.where || {}).map(option => Object.values(option)).flat()
     return databaseLayer.query(options).then(res => {
       expect(Qb.query).toBeCalledWith(tableName, options)
       expect(fn).toBeCalledWith(qbMockReturns, params)

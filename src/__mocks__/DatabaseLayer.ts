@@ -1,3 +1,4 @@
+export const executeBulkSql = jest.fn()
 export const executeSql = jest.fn()
 export const createTable = jest.fn()
 export const dropTable = jest.fn()
@@ -17,6 +18,7 @@ export const _sanitize = jest.fn()
 
 export default jest.fn().mockImplementation(() => {
   return {
+    executeBulkSql,
     executeSql,
     createTable,
     dropTable,
