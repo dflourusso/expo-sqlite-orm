@@ -1,6 +1,6 @@
-export type TDataType = 'INTEGER' | 'FLOAT' | 'TEXT' | 'NUMERIC' | 'DATE' | 'DATETIME' | 'BOOLEAN' | 'JSON'
+import { ColumnOptions, TDataType } from "./types"
 
-export const types: Record<TDataType, TDataType> = {
+export const columnTypes: Record<TDataType, TDataType> = {
   INTEGER: 'INTEGER',
   FLOAT: 'FLOAT',
   TEXT: 'TEXT',
@@ -9,15 +9,6 @@ export const types: Record<TDataType, TDataType> = {
   DATETIME: 'DATETIME',
   BOOLEAN: 'BOOLEAN',
   JSON: 'JSON'
-}
-
-export interface ColumnOptions {
-  type: TDataType
-  primary_key?: boolean,
-  autoincrement?: boolean
-  not_null?: boolean
-  unique?: boolean
-  default?: () => unknown
 }
 
 
@@ -30,9 +21,9 @@ function toDatabaseValue<T extends {}>(columnMapping: Record<keyof T, ColumnOpti
 
 function propertyToDatabaseValue(type: TDataType, value: any) {
   switch (type) {
-    case types.JSON:
+    case columnTypes.JSON:
       return JSON.stringify(value)
-    case types.BOOLEAN:
+    case columnTypes.BOOLEAN:
       return value ? 1 : 0
     default:
       return value
@@ -51,9 +42,9 @@ function toModelValue<T extends {}>(columnMapping: Record<keyof T, ColumnOptions
 
 function propertyToModelValue(type: TDataType, value: any) {
   switch (type) {
-    case types.JSON:
+    case columnTypes.JSON:
       return JSON.parse(value || null)
-    case types.BOOLEAN:
+    case columnTypes.BOOLEAN:
       return Boolean(value)
     default:
       return value

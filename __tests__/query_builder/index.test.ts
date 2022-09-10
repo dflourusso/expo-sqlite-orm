@@ -7,9 +7,7 @@ it('find statement', () => {
     'query',
     'update',
     'destroy',
-    'destroyAll',
-    'createTable',
-    'dropTable'
+    'destroyAll'
   ]
   methods.forEach(p => expect(qb).toHaveProperty(p))
 })

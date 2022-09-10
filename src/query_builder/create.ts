@@ -1,5 +1,5 @@
 // Creates the "INSERT" sql statement
-export function insert<T>(tableName: string, object: T) {
+export function insert<T = {}>(tableName: string, object: T) {
   const keys = Object.keys(object)
   const columns = keys.join(', ')
   const values = keys.map(() => '?').join(', ')

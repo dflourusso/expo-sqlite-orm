@@ -15,3 +15,12 @@ export interface IQueryOptions<T> {
   where?: IQueryWhere<T>;
   order?: IQueryOrderBy<T>;
 }
+
+export type TDataType = 'INTEGER' | 'FLOAT' | 'TEXT' | 'NUMERIC' | 'DATE' | 'DATETIME' | 'BOOLEAN' | 'JSON'
+
+export interface ColumnOptions {
+  type: TDataType
+  default?: () => unknown
+}
+
+export type ColumnMapping<T> = Record<keyof T, ColumnOptions>

@@ -1,30 +1,17 @@
 jest.mock('../src/DatabaseLayer')
-import DataTypes, { types } from '../src/DataTypes'
+import DataTypes, { columnTypes } from '../src/DataTypes'
 import { Repository } from '../src/Repository'
 
 const columnMapping = {
-  id: { type: types.INTEGER, primary_key: true },
-  name: { type: types.TEXT }
+  id: { type: columnTypes.INTEGER, primary_key: true },
+  name: { type: columnTypes.TEXT }
 }
-
-
 
 describe('actions', () => {
   let repository
   beforeEach(() => {
     repository = new Repository('databaseInstance', 'test', columnMapping)
     jest.clearAllMocks()
-  })
-
-  it('createTable', () => {
-    repository.createTable()
-    expect(repository.databaseLayer.createTable).toHaveBeenCalledTimes(1)
-    expect(repository.databaseLayer.createTable).toBeCalledWith(columnMapping)
-  })
-
-  it('dropTable', () => {
-    repository.dropTable()
-    expect(repository.databaseLayer.dropTable).toHaveBeenCalledTimes(1)
   })
 
   it('insert', () => {

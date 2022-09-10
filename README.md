@@ -13,7 +13,7 @@ It is a simple ORM utility to use with expo sqlite
 
 `yarn add expo-sqlite-orm`
 
-## Creating a repository
+## Basic usage
 
 You need to provide 3 things:
 
@@ -24,7 +24,7 @@ You need to provide 3 things:
 
 ```typescript
 import * as SQLite from 'expo-sqlite'
-import { ColumnMapping, Repository, types } from 'expo-sqlite-orm'
+import { ColumnMapping, IStatement, Migrations, Repository, sql, types } from 'expo-sqlite-orm'
 import React, { useMemo, useState } from 'react'
 import { ScrollView, Text } from 'react-native'
 
@@ -38,24 +38,45 @@ interface Animal {
 }
 
 const columMapping: ColumnMapping<Animal> = {
-  id: { type: types.INTEGER, primary_key: true, autoincrement: true }, // For while only supports id as primary key
-  name: { type: types.TEXT, not_null: true },
+  id: { type: types.INTEGER },
+  name: { type: types.TEXT },
   color: { type: types.TEXT },
   age: { type: types.NUMERIC },
-  another_uid: { type: types.INTEGER, unique: true },
+  another_uid: { type: types.INTEGER },
   timestamp: { type: types.INTEGER, default: () => Date.now() },
 }
 
+const statements: IStatement = {
+  '1662689376195_create_animals': sql`
+        CREATE TABLE animals (
+          id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          color TEXT,
+          age NUMERIC,
+          another_uid TEXT UNIQUE,
+          timestamp INTEGER
+        );`,
+}
+
 export function CadastrosScreen() {
+  const [databaseResetAt, setDatabaseResetAt] = useState<number>(0)
   const [animals, setAnimals] = useState<Animal[]>([])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const database = useMemo(() => SQLite.openDatabase('dbName'), [databaseResetAt]) // After reset we need to open it again
+  const migrations = useMemo(() => new Migrations(database, statements), [database])
 
   const animalRepository = useMemo(() => {
-    const database = SQLite.openDatabase('dbName')
     return new Repository(database, 'animals', columMapping)
-  }, [])
+  }, [database])
 
-  const onPressCreateTable = () => {
-    animalRepository.createTable()
+  const onPressRunMigrations = async () => {
+    await migrations.migrate()
+  }
+
+  const onPressReset = async () => {
+    await migrations.reset()
+    setDatabaseResetAt(Date.now())
+    setAnimals([])
   }
 
   const onPressInsert = () => {
@@ -65,33 +86,24 @@ export function CadastrosScreen() {
   }
 
   const onPressQuery = () => {
-    animalRepository.query({ where: { age: { gt: 1 } } }).then((foundAnimals) => {
-      console.log(foundAnimals)
+    animalRepository.query({ where: { age: { gte: 1 } } }).then((foundAnimals) => {
       setAnimals(foundAnimals)
     })
   }
 
   return (
     <ScrollView>
-      <Text onPress={onPressCreateTable}>Create table</Text>
+      <Text onPress={onPressRunMigrations}>Migrate</Text>
+      <Text onPress={onPressReset}>Reset Database</Text>
       <Text onPress={onPressInsert}>Insert Animal</Text>
       <Text onPress={onPressQuery}>List Animals</Text>
       <Text>{JSON.stringify(animals, null, 1)}</Text>
     </ScrollView>
   )
 }
-
 ```
 
 ## Database operations
-
-### Drop table
-
-`animalRepository.dropTable()`
-
-### Create table
-
-`animalRepository.createTable()`
 
 ### Insert a record
 
@@ -148,7 +160,7 @@ animalRepository.destroyAll()
 const options = {
   columns: 'id, name',
   where: {
-    age: { gt: 2 }
+    age: { gt: 2, lt: 10 }
   },
   page: 2,
   limit: 30,
@@ -198,12 +210,39 @@ animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
 })
 ```
 
+## Migrations
+
+### Execute the migrations
+
+```typescript
+import * as SQLite from 'expo-sqlite'
+import { Migrations, sql } from 'expo-sqlite-orm'
+
+const statements: IStatement = {
+  '1662689376195_init': sql`CREATE TABLE animals (id TEXT, name TEXT);`,
+  '1662689376196_add_age_column': sql`ALTER TABLE animals ADD age NUMERIC;`,
+  '1662689376197_add_color_column': sql`ALTER TABLE animals ADD color TEXT;`
+}
+
+const database = SQLite.openDatabase('dbName')
+const migrations = new Migrations(databaseInstance, statements)
+await migrations.migrate()
+```
+
+### Reset the database
+
+```typescript
+const migrations = new Migrations(databaseInstance, statements)
+await migrations.reset() // Make sure to open the database again after reset it
+```
+
 # TODO
 
 - [x] Add basic typescript support
 - [x] Make it easier to use with react-hooks
 - [x] Complete typescript autocomplete for where queries
-- [ ] Add migrations feature
+- [x] Add migrations feature
+- [ ] Improve migrations with CLI and better examples
 - [ ] Fix some typecheckings and remove ts-igonre
 - [ ] Allow OR statement
 
@@ -214,6 +253,7 @@ animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
 - **2.0.0** - BREAKING CHANGE
   - Add typescript support
   - Remove BaseModel in favor of Repository (Easier to use with react-hooks)
+  - Add migrations support
 
 ## Development
 

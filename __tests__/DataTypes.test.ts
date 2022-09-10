@@ -1,4 +1,4 @@
-import DataTypes, { types } from '../src/DataTypes'
+import DataTypes, { columnTypes } from '../src/DataTypes'
 
 class ModelExample {
   constructor(obj) {
@@ -9,12 +9,12 @@ class ModelExample {
 
   static get columnMapping() {
     return {
-      id: { type: types.INTEGER },
-      teste1: { type: types.TEXT },
-      teste2: { type: types.FLOAT },
-      teste3: { type: types.JSON },
-      teste4: { type: types.TEXT },
-      teste5: { type: types.BOOLEAN }
+      id: { type: columnTypes.INTEGER },
+      teste1: { type: columnTypes.TEXT },
+      teste2: { type: columnTypes.FLOAT },
+      teste3: { type: columnTypes.JSON },
+      teste4: { type: columnTypes.TEXT },
+      teste5: { type: columnTypes.BOOLEAN }
     }
   }
 }
@@ -48,7 +48,7 @@ describe('toDatabaseValue', () => {
 
 describe('propertyToDatabaseValue', () => {
   it('Convert JSON type to string', () => {
-    const parsedValue = DataTypes.propertyToDatabaseValue(types.JSON, data)
+    const parsedValue = DataTypes.propertyToDatabaseValue(columnTypes.JSON, data)
     expect(parsedValue).toBe(JSON.stringify(data))
   })
 })
@@ -84,7 +84,7 @@ describe('toModelValue', () => {
 describe('propertyToModelValue', () => {
   it('Convert string to JSON type', () => {
     const parsedValue = DataTypes.propertyToModelValue(
-      types.JSON,
+      columnTypes.JSON,
       JSON.stringify(data)
     )
     expect(parsedValue).toEqual(data)
@@ -92,7 +92,7 @@ describe('propertyToModelValue', () => {
 
   it('Convert undefined to JSON type', () => {
     const parsedValue = DataTypes.propertyToModelValue(
-      types.JSON,
+      columnTypes.JSON,
       undefined
     )
     expect(parsedValue).toBe(null)
@@ -100,7 +100,7 @@ describe('propertyToModelValue', () => {
 
   it('Convert empty string to JSON type', () => {
     const parsedValue = DataTypes.propertyToModelValue(
-      types.JSON,
+      columnTypes.JSON,
       ''
     )
     expect(parsedValue).toBe(null)
