@@ -18,30 +18,33 @@ jest.mock('../src/query_builder', () => {
   }, {})
 })
 
-import { WebSQLDatabase } from 'expo-sqlite'
+import { openDatabase } from "expo-sqlite"
+import { Database } from '../src/Database'
 import DatabaseLayer from '../src/DatabaseLayer'
 import Qb from '../src/query_builder'
 import { IQueryOptions } from '../src/types'
 
 interface ITests {
   id: number
-  teste1: string 
-  teste2: number 
+  teste1: string
+  teste2: number
   teste3: string
 }
 
 
+const databaseName = 'databaseName'
 const executeSql = jest.fn((sql, params, cb, errorCb) => {
   const insertId = /^INSERT/.test(sql) ? 1 : null
   cb(null, { rows: { _array: [] }, insertId })
 })
 const transaction = jest.fn(cb => cb({ executeSql }))
-const database = { transaction } as unknown as WebSQLDatabase
+const database = { transaction } as unknown as Database
 const tableName = 'tests'
 
 describe('execute sql', () => {
-  const databaseLayer = new DatabaseLayer<ITests>(database, tableName)
+  const databaseLayer = new DatabaseLayer<ITests>(databaseName, tableName)
   it('call execute with the correct params', () => {
+    (openDatabase as jest.Mock).mockImplementationOnce(() => database)
     const sql = 'select * from tests where id = ?'
     const params = [1]
     return databaseLayer.executeSql(sql, params).then(() => {
@@ -79,7 +82,7 @@ describe('execute sql', () => {
 
 describe('run statements', () => {
   const qbMockReturns = 'query'
-  const databaseLayer = new DatabaseLayer<ITests>(database, tableName)
+  const databaseLayer = new DatabaseLayer<ITests>(databaseName, tableName)
   const fn = jest.fn(() => Promise.resolve({ rows: [], insertId: null }))
   databaseLayer.executeSql = fn
   beforeEach(jest.clearAllMocks)

@@ -1,6 +1,9 @@
 jest.mock('../src/DatabaseLayer')
-import { WebSQLDatabase } from 'expo-sqlite'
+import { openDatabase, WebSQLDatabase } from 'expo-sqlite'
 import { IStatement, Migrations, sql } from '../src/Migrations'
+
+
+const databasenName = 'databaseName'
 
 const databaseInstance = {
   closeAsync: jest.fn(),
@@ -16,7 +19,8 @@ const statements: IStatement = {
 describe('Migrations', () => {
   let migrations: Migrations
   beforeEach(() => {
-    migrations = new Migrations(databaseInstance, statements)
+    (openDatabase as jest.Mock).mockImplementationOnce(() => databaseInstance)
+    migrations = new Migrations(databasenName, statements)
     jest.clearAllMocks()
   })
 
@@ -62,7 +66,7 @@ describe('Migrations', () => {
         ["1662689376197_add_color_column"]
       ])
   })
-  
+
   it('Should reset the database', async () => {
     await migrations.reset()
     expect(databaseInstance.closeAsync).toHaveBeenCalled()

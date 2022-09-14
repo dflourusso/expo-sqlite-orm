@@ -1,13 +1,13 @@
-import { WebSQLDatabase } from 'expo-sqlite'
+import { Database } from './Database'
 import QueryBuilder from './query_builder'
 import { IQueryOptions } from './types'
 
 export default class DatabaseLayer<T> {
-  private database: WebSQLDatabase
+  private database: Database
   private tableName: string
 
-  constructor(database: WebSQLDatabase, tableName: string) {
-    this.database = database
+  constructor(databaseName: string, tableName: string) {
+    this.database = Database.instance(databaseName)
     this.tableName = tableName
   }
 

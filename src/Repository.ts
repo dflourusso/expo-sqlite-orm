@@ -1,4 +1,3 @@
-import { WebSQLDatabase } from 'expo-sqlite'
 import DatabaseLayer from './DatabaseLayer'
 import DataTypes from './DataTypes'
 import { ColumnMapping, ColumnOptions, IQueryOptions } from './types'
@@ -7,9 +6,9 @@ export class Repository<T = Record<string, any> | { id: any }> {
   private columnMapping: Record<keyof T, ColumnOptions>
   public readonly databaseLayer: DatabaseLayer<T>
 
-  constructor(database: WebSQLDatabase, tableName: string, columnMapping: ColumnMapping<T>) {
+  constructor(databaseName: string, tableName: string, columnMapping: ColumnMapping<T>) {
     this.columnMapping = columnMapping
-    this.databaseLayer = new DatabaseLayer(database, tableName)
+    this.databaseLayer = new DatabaseLayer(databaseName, tableName)
   }
 
   insert(data: Omit<T, 'id'>): Promise<T> {

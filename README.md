@@ -23,10 +23,16 @@ You need to provide 3 things:
   - Supported options: `type`, `primary_key`, `autoincrement`, `not_null`, `unique`, `default`
 
 ```typescript
-import * as SQLite from 'expo-sqlite'
-import { ColumnMapping, IStatement, Migrations, Repository, sql, types } from 'expo-sqlite-orm'
+import { Text } from '@components'
+import { ColumnMapping, columnTypes, IStatement, Migrations, Repository, sql } from 'expo-sqlite-orm'
 import React, { useMemo, useState } from 'react'
-import { ScrollView, Text } from 'react-native'
+import { ScrollView } from 'react-native'
+
+import { RootTabScreenProps } from '../../navigation/types'
+
+/**
+ * Expo Sqlite ORM V2 - Usage example
+ */
 
 interface Animal {
   id: number
@@ -38,12 +44,12 @@ interface Animal {
 }
 
 const columMapping: ColumnMapping<Animal> = {
-  id: { type: types.INTEGER },
-  name: { type: types.TEXT },
-  color: { type: types.TEXT },
-  age: { type: types.NUMERIC },
-  another_uid: { type: types.INTEGER },
-  timestamp: { type: types.INTEGER, default: () => Date.now() },
+  id: { type: columnTypes.INTEGER },
+  name: { type: columnTypes.TEXT },
+  color: { type: columnTypes.TEXT },
+  age: { type: columnTypes.NUMERIC },
+  another_uid: { type: columnTypes.INTEGER },
+  timestamp: { type: columnTypes.INTEGER, default: () => Date.now() },
 }
 
 const statements: IStatement = {
@@ -58,16 +64,15 @@ const statements: IStatement = {
         );`,
 }
 
-export function CadastrosScreen() {
-  const [databaseResetAt, setDatabaseResetAt] = useState<number>(0)
+const databaseName = 'dbName'
+
+export function MeusServicosScreen({ navigation }: RootTabScreenProps<'MeusServicos'>) {
   const [animals, setAnimals] = useState<Animal[]>([])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const database = useMemo(() => SQLite.openDatabase('dbName'), [databaseResetAt]) // After reset we need to open it again
-  const migrations = useMemo(() => new Migrations(database, statements), [database])
+  const migrations = useMemo(() => new Migrations(databaseName, statements), [])
 
   const animalRepository = useMemo(() => {
-    return new Repository(database, 'animals', columMapping)
-  }, [database])
+    return new Repository(databaseName, 'animals', columMapping)
+  }, [])
 
   const onPressRunMigrations = async () => {
     await migrations.migrate()
@@ -75,7 +80,6 @@ export function CadastrosScreen() {
 
   const onPressReset = async () => {
     await migrations.reset()
-    setDatabaseResetAt(Date.now())
     setAnimals([])
   }
 
@@ -87,20 +91,30 @@ export function CadastrosScreen() {
 
   const onPressQuery = () => {
     animalRepository.query({ where: { age: { gte: 1 } } }).then((foundAnimals) => {
+      console.log(foundAnimals)
       setAnimals(foundAnimals)
     })
   }
 
   return (
     <ScrollView>
-      <Text onPress={onPressRunMigrations}>Migrate</Text>
-      <Text onPress={onPressReset}>Reset Database</Text>
-      <Text onPress={onPressInsert}>Insert Animal</Text>
-      <Text onPress={onPressQuery}>List Animals</Text>
-      <Text>{JSON.stringify(animals, null, 1)}</Text>
+      <Text type="text2" onPress={onPressRunMigrations}>
+        Migrate
+      </Text>
+      <Text type="text2" onPress={onPressReset}>
+        Reset Database
+      </Text>
+      <Text type="text2" onPress={onPressInsert}>
+        Insert Animal
+      </Text>
+      <Text type="text2" onPress={onPressQuery}>
+        List Animals
+      </Text>
+      <Text type="text2">{JSON.stringify(animals, null, 1)}</Text>
     </ScrollView>
   )
 }
+
 ```
 
 ## Database operations
@@ -224,16 +238,15 @@ const statements: IStatement = {
   '1662689376197_add_color_column': sql`ALTER TABLE animals ADD color TEXT;`
 }
 
-const database = SQLite.openDatabase('dbName')
-const migrations = new Migrations(databaseInstance, statements)
+const migrations = new Migrations('databaseName', statements)
 await migrations.migrate()
 ```
 
 ### Reset the database
 
 ```typescript
-const migrations = new Migrations(databaseInstance, statements)
-await migrations.reset() // Make sure to open the database again after reset it
+const migrations = new Migrations('databaseName', statements)
+await migrations.reset()
 ```
 
 # TODO
@@ -242,6 +255,7 @@ await migrations.reset() // Make sure to open the database again after reset it
 - [x] Make it easier to use with react-hooks
 - [x] Complete typescript autocomplete for where queries
 - [x] Add migrations feature
+- [x] Create a singleton to handle the instances easily
 - [ ] Improve migrations with CLI and better examples
 - [ ] Fix some typecheckings and remove ts-igonre
 - [ ] Allow OR statement

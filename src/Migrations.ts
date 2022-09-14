@@ -1,4 +1,4 @@
-import { WebSQLDatabase } from 'expo-sqlite'
+import { Database } from './Database'
 import { columnTypes } from './DataTypes'
 import QueryBuilder from './query_builder'
 import { Repository } from './Repository'
@@ -27,14 +27,14 @@ const columnMapping: ColumnMapping<IMigration> = {
 }
 
 export class Migrations {
-  private database: WebSQLDatabase
+  private database: Database
   private statements: IStatement
   public readonly repository: Repository<IMigration>
 
-  constructor(database: WebSQLDatabase, statements: IStatement) {
-    this.database = database
+  constructor(databaseName: string, statements: IStatement) {
+    this.database = Database.instance(databaseName)
     this.statements = statements
-    this.repository = new Repository(database, TABLE_NAME, columnMapping)
+    this.repository = new Repository(databaseName, TABLE_NAME, columnMapping)
   }
 
   async migrate() {
@@ -45,8 +45,7 @@ export class Migrations {
   }
 
   async reset() {
-    await this.database.closeAsync()
-    await this.database.deleteAsync()
+    await this.database.reset()
   }
 
   private async setupMigrationsTable() {
