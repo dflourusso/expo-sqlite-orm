@@ -33,9 +33,15 @@ export class Database {
     return this.database.transaction(callback, errorCallback, successCallback)
   }
 
+  async close(): Promise<void> {
+    if(!this.database) return
+    await this.database.closeAsync()
+    this.database = undefined
+  }
+
   async reset(): Promise<void> {
     this.openDatabase()
-    this.database.closeAsync()
+    await this.database.closeAsync()
     await this.database.deleteAsync()
     this.database = undefined
   }
