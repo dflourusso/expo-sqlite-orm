@@ -2,7 +2,7 @@ import { Database } from './Database'
 import QueryBuilder from './query_builder'
 import { IQueryOptions } from './types'
 
-export default class DatabaseLayer<T> {
+export class DatabaseLayer<T = any> {
   private database: Database
   private tableName: string
 

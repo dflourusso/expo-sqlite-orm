@@ -1,13 +1,15 @@
-import DatabaseLayer from './DatabaseLayer'
+import { DatabaseLayer } from './DatabaseLayer'
 import DataTypes from './DataTypes'
 import { ColumnMapping, ColumnOptions, IQueryOptions } from './types'
 
 export class Repository<T = Record<string, any> | { id: any }> {
   private columnMapping: Record<keyof T, ColumnOptions>
+  private tableName: string
   public readonly databaseLayer: DatabaseLayer<T>
 
   constructor(databaseName: string, tableName: string, columnMapping: ColumnMapping<T>) {
     this.columnMapping = columnMapping
+    this.tableName = tableName
     this.databaseLayer = new DatabaseLayer(databaseName, tableName)
   }
 
