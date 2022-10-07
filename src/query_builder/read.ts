@@ -3,7 +3,7 @@ import { IQueryOperation, IQueryOptions, IQueryWhere } from "../types"
 const defaultOptions: IQueryOptions<{ id: any }> = {
   columns: ['*'],
   page: null,
-  limit: 30,
+  limit: null,
   where: {},
   order: { id: 'DESC' }
 }
@@ -36,13 +36,17 @@ export function query<T = {}>(tableName: string, options: IQueryOptions<T> = {})
     Object.entries(order).map(p => p.join(' ')).join(', ')
   ]
 
-  if (page !== null) {
+  if (limit !== null) {
     sqlParts.push(...[
       'LIMIT',
       `${limit}`,
-      'OFFSET',
-      `${limit * (page - 1)}`
     ])
+    if (page !== null) {
+      sqlParts.push(...[
+        'OFFSET',
+        `${limit * (page - 1)}`
+      ])
+    }
   }
 
   return sqlParts.filter(p => p !== '').join(' ')
