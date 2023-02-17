@@ -44,6 +44,10 @@ export class Migrations {
     return this.repository.databaseLayer.executeBulkSql(sqls, params)
   }
 
+  async hasPendingMigrations(): Promise<boolean> {
+    return Object.keys(await this.getPendingStatements()).length > 0
+  }
+
   async reset() {
     await this.database.reset()
   }
