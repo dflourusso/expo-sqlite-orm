@@ -57,7 +57,8 @@ export class Migrations {
     await this.repository.databaseLayer.executeSql(sql).then(() => true)
   }
 
-  private getExecutedMigrationNames(): Promise<TStatementName[]> {
+  private async getExecutedMigrationNames(): Promise<TStatementName[]> {
+    await this.setupMigrationsTable()
     return this.repository.query({
       order: { name: 'DESC' },
     }).then(migrations => migrations.map(migration => migration.name))
