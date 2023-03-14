@@ -174,6 +174,7 @@ animalRepository.destroyAll()
 const options = {
   columns: 'id, name',
   where: {
+    id: { in: [1, 2, 3, 4] },
     age: { gt: 2, lt: 10 }
   },
   page: 2,
@@ -256,6 +257,7 @@ await migrations.reset()
 - [x] Complete typescript autocomplete for where queries
 - [x] Add migrations feature
 - [x] Create a singleton to handle the instances easily
+- [x] Allow IN statement
 - [ ] Improve migrations with CLI and better examples
 - [ ] Fix some typecheckings and remove ts-igonre
 - [ ] Allow OR statement
