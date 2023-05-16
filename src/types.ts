@@ -1,7 +1,9 @@
-export type IQueryOperation = 'equals' | 'notEquals' | 'lt' | 'lte' | 'gt' | 'gte' | 'contains' | 'in' | 'notIn';
+export type IQueryOperationSingleValue = 'equals' | 'notEquals' | 'lt' | 'lte' | 'gt' | 'gte' | 'contains'
+export type IQueryOperationMultipleValue = 'in' | 'notIn'
+export type IQueryOperation = IQueryOperationSingleValue & IQueryOperationMultipleValue
 
 export type IQueryWhere<T extends {} = {}> = {
-  [P in keyof T]?: Partial<Record<IQueryOperation, T[P]>>
+  [P in keyof T]?: T[P] | (Partial<Record<IQueryOperationSingleValue, T[P]>> & Partial<Record<IQueryOperationMultipleValue, T[P][]>>)
 }
 
 export type IQueryOrderBy<T = {}> = {
