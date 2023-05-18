@@ -20,7 +20,7 @@ jest.mock('../src/query_builder', () => {
 
 import { openDatabase } from "expo-sqlite"
 import { Database } from '../src/Database'
-import DatabaseLayer from '../src/DatabaseLayer'
+import { DatabaseLayer } from '../src/DatabaseLayer'
 import Qb from '../src/query_builder'
 import { IQueryOptions } from '../src/types'
 

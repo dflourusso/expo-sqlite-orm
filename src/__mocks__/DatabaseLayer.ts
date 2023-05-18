@@ -1,7 +1,7 @@
-export const executeBulkSql = jest.fn()
-export const executeSql = jest.fn()
-export const createTable = jest.fn()
-export const dropTable = jest.fn()
+export const executeBulkSql = jest.fn(async p => p)
+export const executeSql = jest.fn(async p => p)
+export const createTable = jest.fn(async p => p)
+export const dropTable = jest.fn(async p => p)
 export const insert = jest.fn(async p => p)
 export const update = jest.fn(() => Promise.resolve({}))
 export const destroy = jest.fn(() => Promise.resolve(true))
@@ -16,7 +16,7 @@ export const query = jest.fn(({ where }) => Promise.resolve(where && where.statu
 ] : []))
 export const _sanitize = jest.fn()
 
-export default jest.fn().mockImplementation(() => {
+export const DatabaseLayer = jest.fn().mockImplementation(() => {
   return {
     executeBulkSql,
     executeSql,

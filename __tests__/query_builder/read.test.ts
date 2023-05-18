@@ -18,16 +18,16 @@ it('find statement', () => {
 describe('query', () => {
   describe('auxiliar methods', () => {
     it.each([
-      ['created_at', ['equals'], 'created_at = ?'],
-      ['created_at', ['notEquals'], 'created_at <> ?'],
-      ['created_at', ['lt'], 'created_at < ?'],
-      ['created_at', ['lte'], 'created_at <= ?'],
-      ['created_at', ['gt'], 'created_at > ?'],
-      ['created_at', ['gte'], 'created_at >= ?'],
-      ['created_at', ['lt', 'gt'], 'created_at < ? AND created_at > ?'],
-      ['name', ['contains'], 'name LIKE ?']
+      ['created_at', { equals: '' }, 'created_at = ?'],
+      ['created_at', { notEquals: '' }, 'created_at <> ?'],
+      ['created_at', { lt: '' }, 'created_at < ?'],
+      ['created_at', { lte: '' }, 'created_at <= ?'],
+      ['created_at', { gt: '' }, 'created_at > ?'],
+      ['created_at', { gte: '' }, 'created_at >= ?'],
+      ['created_at', { lt: '', gt: '' }, 'created_at < ? AND created_at > ?'],
+      ['name', { contains: '' }, 'name LIKE ?']
     ])('propertyOperation %s %s %s', (property, options, expected) => {
-      expect(propertyOperation(property, options as IQueryOperation[])).toBe(expected)
+      expect(propertyOperation(property, options)).toBe(expected)
     })
 
     it('propertyOperation with invalid operator', () => {
@@ -59,8 +59,14 @@ describe('query', () => {
       expect(sql).toBe(expected)
     })
 
-    it('with page params', () => {
-      const sql = qb.query('items', { page: 1 })
+    it('with limit params', () => {
+      const sql = qb.query('items', { limit: 30 })
+      const expected = 'SELECT * FROM items ORDER BY id DESC LIMIT 30'
+      expect(sql).toBe(expected)
+    })
+
+    it('with page and limit params', () => {
+      const sql = qb.query('items', { limit: 30, page: 1 })
       const expected = 'SELECT * FROM items ORDER BY id DESC LIMIT 30 OFFSET 0'
       expect(sql).toBe(expected)
     })

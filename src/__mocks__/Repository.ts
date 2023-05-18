@@ -1,3 +1,5 @@
+import { DatabaseLayer } from "./DatabaseLayer"
+
 export const executeBulkSql = jest.fn()
 export const executeSql = jest.fn()
 export const createTable = jest.fn()
@@ -12,8 +14,9 @@ export const findBy = jest.fn(({ numero_eq }) =>
 )
 export const query = jest.fn(() => Promise.resolve([]))
 export const _sanitize = jest.fn()
+export const databaseLayer = new DatabaseLayer()
 
-export default jest.fn().mockImplementation(() => {
+export const Repository = jest.fn().mockImplementation(() => {
   return {
     executeBulkSql,
     executeSql,
@@ -26,6 +29,7 @@ export default jest.fn().mockImplementation(() => {
     find,
     findBy,
     query,
-    _sanitize
+    _sanitize,
+    // databaseLayer
   }
 })

@@ -185,6 +185,8 @@ const options = {
 animalRepository.query(options)
 ```
 
+> The property `page` is applied only if you pass the `limit` as well
+
 **Where operations**
 
 - equals: `=`,
