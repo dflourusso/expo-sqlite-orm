@@ -17,7 +17,7 @@ It is a simple ORM utility to use with expo sqlite
 
 You need to provide 3 things:
 
-- `database`: Instance of expo SQLite or promise with that instance
+- `databaseName`: Name of the database to be created/used by expo SQLite
 - `tableName`: The name of the table
 - `columnMapping`: The columns for the model and their types
   - Supported options: `type`, `primary_key`, `autoincrement`, `not_null`, `unique`, `default`
@@ -196,6 +196,8 @@ animalRepository.query(options)
 - gt: `>`,
 - gte: `>=`,
 - contains: `LIKE`
+- in: `IN (?)`
+- notIn: `NOT IN (?)`
 
 ## Data types
 
@@ -260,8 +262,6 @@ await migrations.reset()
 - [x] Add migrations feature
 - [x] Create a singleton to handle the instances easily
 - [x] Allow IN statement
-- [ ] Improve migrations with CLI and better examples
-- [ ] Fix some typecheckings and remove ts-igonre
 - [ ] Allow OR statement
 
 ## Changelog
