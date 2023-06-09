@@ -86,7 +86,13 @@ export class DatabaseLayer<T = any> {
 
   query(options: IQueryOptions<T> = {}) {
     const sql = QueryBuilder.query(this.tableName, options)
-    const params = Object.values(options.where || {}).map(option => Object.values(option)).flat().flat()
+    const params = Object
+      .values(options.where || {})
+      .map(option => Object.values(option))
+      .flat()
+      .flat()
+      .filter(v => v !== undefined)
+
 
     return this.executeSql(sql, params).then(({ rows }) => rows)
   }
