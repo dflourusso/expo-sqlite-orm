@@ -51,13 +51,13 @@ describe('query', () => {
       expect(queryWhere(options)).toBe(expected)
     })
 
-    it('queryWhere with empty or undefined params', () => {
+    it('queryWhere with undefined params', () => {
       const options = {
         name: { contains: 'Daniel' },
         status: { equals: '' },
         created_at: { gt: undefined }
       }
-      const expected = 'WHERE name LIKE ?'
+      const expected = 'WHERE name LIKE ? AND status = ?'
       expect(queryWhere(options)).toBe(expected)
     })
   })
