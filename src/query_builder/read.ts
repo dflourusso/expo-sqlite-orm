@@ -88,8 +88,15 @@ export function propertyOperation<T extends {}>(property: keyof T, options: Part
 // Build where query
 export function queryWhere<T = any>(options: IQueryWhere<T>) {
   const list = Object.entries(options).map(([property, conditions]) => {
+    
+    // Ignore empty or undefined fields
+    conditions = Object.keys(conditions).reduce((acc, key) => {
+      if (conditions[key] !== undefined) acc[key] = conditions[key]
+      return acc
+    }, {})
+    
     return `${propertyOperation(property, conditions)}`
-  })
+  }).filter((item) => Object.values(item).length > 0)
   return list.length > 0 ? `WHERE ${list.join(' AND ')}` : ''
 }
 

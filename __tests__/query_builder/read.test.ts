@@ -18,14 +18,14 @@ it('find statement', () => {
 describe('query', () => {
   describe('auxiliar methods', () => {
     it.each([
-      ['created_at', { equals: '' }, 'created_at = ?'],
-      ['created_at', { notEquals: '' }, 'created_at <> ?'],
-      ['created_at', { lt: '' }, 'created_at < ?'],
-      ['created_at', { lte: '' }, 'created_at <= ?'],
-      ['created_at', { gt: '' }, 'created_at > ?'],
-      ['created_at', { gte: '' }, 'created_at >= ?'],
-      ['created_at', { lt: '', gt: '' }, 'created_at < ? AND created_at > ?'],
-      ['name', { contains: '' }, 'name LIKE ?']
+      ['created_at', { equals: Date.now() }, 'created_at = ?'],
+      ['created_at', { notEquals:Date.now() }, 'created_at <> ?'],
+      ['created_at', { lt:Date.now() }, 'created_at < ?'],
+      ['created_at', { lte:Date.now() }, 'created_at <= ?'],
+      ['created_at', { gt:Date.now() }, 'created_at > ?'],
+      ['created_at', { gte:Date.now() }, 'created_at >= ?'],
+      ['created_at', { lt:Date.now(), gt:Date.now() }, 'created_at < ? AND created_at > ?'],
+      ['name', { contains:Date.now() }, 'name LIKE ?']
     ])('propertyOperation %s %s %s', (property, options, expected) => {
       expect(propertyOperation(property, options)).toBe(expected)
     })
@@ -48,6 +48,16 @@ describe('query', () => {
         created_at: { gt: new Date() }
       }
       const expected = 'WHERE name LIKE ? AND status = ? AND created_at > ?'
+      expect(queryWhere(options)).toBe(expected)
+    })
+
+    it('queryWhere with undefined params', () => {
+      const options = {
+        name: { contains: 'Daniel' },
+        status: { equals: '' },
+        created_at: { gt: undefined }
+      }
+      const expected = 'WHERE name LIKE ? AND status = ?'
       expect(queryWhere(options)).toBe(expected)
     })
   })
