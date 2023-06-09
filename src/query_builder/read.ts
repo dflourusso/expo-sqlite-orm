@@ -91,7 +91,7 @@ export function queryWhere<T = any>(options: IQueryWhere<T>) {
     
     // Ignore empty or undefined fields
     conditions = Object.keys(conditions).reduce((acc, key) => {
-      if (conditions[key]) acc[key] = conditions[key]
+      if (conditions[key] !== undefined) acc[key] = conditions[key]
       return acc
     }, {})
     
