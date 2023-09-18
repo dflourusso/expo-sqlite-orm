@@ -1,5 +1,5 @@
 jest.mock('../src/DatabaseLayer')
-import { openDatabase, WebSQLDatabase } from 'expo-sqlite'
+import { openDatabase, SQLiteDatabase } from 'expo-sqlite'
 import { IStatement, Migrations, sql } from '../src/Migrations'
 
 
@@ -8,7 +8,7 @@ const databasenName = 'databaseName'
 const databaseInstance = {
   closeAsync: jest.fn(),
   deleteAsync: jest.fn()
-} as unknown as WebSQLDatabase
+} as unknown as SQLiteDatabase
 
 const statements: IStatement = {
   '1662689376195_init': sql`CREATE TABLE animals (id TEXT, name TEXT);`,

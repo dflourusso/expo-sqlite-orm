@@ -1,9 +1,9 @@
 import * as SQLite from 'expo-sqlite'
-import { SQLTransactionCallback, SQLTransactionErrorCallback, WebSQLDatabase } from 'expo-sqlite'
+import { SQLTransactionCallback, SQLTransactionErrorCallback, SQLiteDatabase } from 'expo-sqlite'
 
 export class Database {
   private databaseName: string
-  private database: WebSQLDatabase
+  private database: SQLiteDatabase
   private static instances: Record<string, Database> = {}
 
   private constructor(databaseName: string) {
@@ -34,7 +34,7 @@ export class Database {
   }
 
   async close(): Promise<void> {
-    if(!this.database) return
+    if (!this.database) return
     await this.database.closeAsync()
     this.database = undefined
   }

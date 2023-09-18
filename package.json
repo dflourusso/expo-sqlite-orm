@@ -28,10 +28,10 @@
     "eslint-plugin-jest": "^21.22.0",
     "jest": "^27.0.6",
     "ts-jest": "^27.0.3",
-    "expo-sqlite": "^10.3.0",
+    "expo-sqlite": "^11.6.0",
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "expo-sqlite": "^10.3.0"
+    "expo-sqlite": "^11.6.0"
   }
 }
