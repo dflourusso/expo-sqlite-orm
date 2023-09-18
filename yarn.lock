@@ -1567,10 +1567,10 @@ expect@^27.0.6:
     jest-message-util "^27.0.6"
     jest-regex-util "^27.0.6"
 
-expo-sqlite@^10.3.0:
-  version "10.3.0"
-  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-10.3.0.tgz#c2d7fa2f6777b8a8730a38cf77b2c57541ada66b"
-  integrity sha512-i9jyOfDw472Ueqnhl4LvspSpBVRzeuGjPWFwDYnaBgNOV3HLeK9Q6P5ixV2/on5RenfL4jsxOQtgeZAXke9/UQ==
+expo-sqlite@^11.6.0:
+  version "11.6.0"
+  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-11.6.0.tgz#054229963e96aa2d3c913c61414c35858ca52939"
+  integrity sha512-R/CmBvY4JYit6e7nJiIplgvg9B5Us95ExmLNxiVsfYjwRqsvKvNlETxX6BpB4FahQleKAZVWOTAzs5o7kst5TA==
   dependencies:
     "@expo/websql" "^1.0.1"
 
