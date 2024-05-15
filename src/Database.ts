@@ -1,5 +1,5 @@
-import * as SQLite from 'expo-sqlite'
-import { SQLTransactionCallback, SQLTransactionErrorCallback, SQLiteDatabase } from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite/legacy'
+import { SQLTransactionCallback, SQLTransactionErrorCallback, SQLiteDatabase } from 'expo-sqlite/legacy'
 
 export class Database {
   private databaseName: string
