@@ -2,6 +2,7 @@ jest.mock('../src/DatabaseLayer')
 import { openDatabase, SQLiteDatabase } from 'expo-sqlite/legacy'
 import { IStatement, Migrations, sql } from '../src/Migrations'
 
+jest.mock('expo-sqlite/legacy')
 
 const databasenName = 'databaseName'
 

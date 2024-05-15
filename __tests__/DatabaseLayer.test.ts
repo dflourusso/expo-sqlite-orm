@@ -31,6 +31,7 @@ interface ITests {
   teste3: string
 }
 
+jest.mock('expo-sqlite/legacy')
 
 const databaseName = 'databaseName'
 const executeSql = jest.fn((sql, params, cb, errorCb) => {
