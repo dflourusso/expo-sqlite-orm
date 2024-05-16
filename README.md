@@ -234,7 +234,7 @@ animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
 ### Execute the migrations
 
 ```typescript
-import * as SQLite from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite/legacy'
 import { Migrations, sql } from 'expo-sqlite-orm'
 
 const statements: IStatement = {
